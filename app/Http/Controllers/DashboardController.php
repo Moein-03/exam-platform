@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Exam;
 use App\Models\Question;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 /* use Inertia\Inertia; */
 
 class DashboardController extends Controller
@@ -15,31 +16,34 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
-        
+
         if ($user->isTeacher()) {
             $examsCount = Exam::where('created_by', $user->id)->count();
             $questionsCount = Question::where('created_by', $user->id)->count();
-            $avgScore = $user->createdExams()->with('students')->get()->flatMap->students->avg('pivot.score');
-            
-            $props = [
-                'role' => 'teacher',
-                'examsCount' => $examsCount,
-                'questionsCount' => $questionsCount,
-                'avgScore' => $avgScore,
-            ];
+
+            $avgScore = DB::table('exam_users')
+                ->where('status', 'finished')
+                ->whereIn('exam_id', function ($query) use ($user) {
+                    $query->select('id')
+                          ->from('exams')
+                          ->where('created_by', $user->id);
+                })
+                ->avg('score');
+
+            return view('dashboard.teacher', compact('examsCount', 'questionsCount', 'avgScore'));
+
         } else {
-            $examsTaken = $user->examsAsStudent()->wherePivot('status', 'finished')->count();
-            $avgScore = $user->examsAsStudent()->wherePivot('status', 'finished')->avg('pivot.score');
-            
-            $props = [
-                'role' => 'student',
-                'examsTaken' => $examsTaken,
-                'avgScore' => $avgScore,
-            ];
+            $examsTaken = $user->examsAsStudent()
+                ->wherePivot('status', 'finished')
+                ->count();
+
+            $avgScore = DB::table('exam_users')
+                ->where('user_id', $user->id)
+                ->where('status', 'finished')
+                ->avg('score');
+
+            return view('dashboard.student', compact('examsTaken', 'avgScore'));
         }
-        
-        // ویو بلید را با props مناسب صدا می‌زنیم
-        return view('dashboard', ['pageProps' => $props]);
     }
 
     /**

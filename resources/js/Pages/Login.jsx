@@ -21,26 +21,34 @@ const Login = () => {
           onSubmit: async (values, { setSubmitting }) => {
                setError('');
                try {
-                    await axios.get('/sanctum/csrf-cookie');
+                    await axios.get('/sanctum/csrf-cookie', { withCredentials: true });
+
                     const response = await axios.post('/login', values, {
-                         headers: { 'Content-Type': 'application/json' },
                          withCredentials: true,
+                         headers: {
+                              'Content-Type': 'application/json',
+                              'Accept': 'application/json',
+                              'X-Requested-With': 'XMLHttpRequest'
+                         }
                     });
-                    toast.success('ورود موفقیت‌آمیز! در حال انتقال به صفحه اصلی...');
-                    setTimeout(() => {
-                         window.location.href = '/';
-                    }, 1000);
+
+                    toast.success('ورود موفقیت‌آمیز!');
+                    setTimeout(() => window.location.href = '/dashboard', 800);
                } catch (err) {
+                    console.error(err.response?.data);
+
                     if (err.response?.status === 422) {
-                         setError('ایمیل یا رمز عبور اشتباه است.');
+                         setError(err.response?.data?.message || 'ایمیل یا رمز عبور اشتباه است.');
+                    } else if (err.response?.status === 419) {
+                         setError('CSRF Token منقضی شده. صفحه را رفرش کنید.');
                     } else {
-                         setError('خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.');
+                         setError('خطا در ارتباط با سرور.');
                     }
                     toast.error('ورود ناموفق');
                } finally {
                     setSubmitting(false);
                }
-          },
+          }
      });
 
      return (
