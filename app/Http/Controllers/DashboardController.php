@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Exam;
 use App\Models\Question;
 use Illuminate\Http\Request;
+/* use Inertia\Inertia; */
 
 class DashboardController extends Controller
 {
@@ -14,19 +15,31 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
+        
         if ($user->isTeacher()) {
             $examsCount = Exam::where('created_by', $user->id)->count();
             $questionsCount = Question::where('created_by', $user->id)->count();
             $avgScore = $user->createdExams()->with('students')->get()->flatMap->students->avg('pivot.score');
-
-            return view('dashboard.teacher', compact('examsCount', 'questionsCount', 'avgScore'));
-
+            
+            $props = [
+                'role' => 'teacher',
+                'examsCount' => $examsCount,
+                'questionsCount' => $questionsCount,
+                'avgScore' => $avgScore,
+            ];
         } else {
             $examsTaken = $user->examsAsStudent()->wherePivot('status', 'finished')->count();
             $avgScore = $user->examsAsStudent()->wherePivot('status', 'finished')->avg('pivot.score');
             
-            return view('dashboard.student', compact('examsTaken', 'avgScore'));
+            $props = [
+                'role' => 'student',
+                'examsTaken' => $examsTaken,
+                'avgScore' => $avgScore,
+            ];
         }
+        
+        // ویو بلید را با props مناسب صدا می‌زنیم
+        return view('dashboard', ['pageProps' => $props]);
     }
 
     /**

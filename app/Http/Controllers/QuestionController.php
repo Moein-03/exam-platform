@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Question;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class QuestionController extends Controller
 {
@@ -15,7 +16,8 @@ class QuestionController extends Controller
         $this->authorizeTeacher();
         $questions = Question::where('created_by', auth()->id())->orderBy('created_at', 'desc')->paginate(10);
 
-        return view('questions.index', compact('questions'));
+        //return view('questions.index', compact('questions'));
+        return Inertia::render('Questions/Index', ['questions' => $questions]);
     }
 
     /**
@@ -24,7 +26,8 @@ class QuestionController extends Controller
     public function create()
     {
         $this->authorizeTeacher();
-        return view('questions.create');
+        //return view('questions.create');
+        return Inertia::render('Questions/Create');
     }
 
     /**
@@ -53,7 +56,8 @@ class QuestionController extends Controller
     public function show(Question $question)
     {
         $this->authorizeOwner($question);
-        return view('questions.show', compact('question'));
+        //return view('questions.show', compact('question'));
+        return Inertia::render('Questions/Show', ['question' => $question]);
     }
 
     /**
@@ -62,7 +66,8 @@ class QuestionController extends Controller
     public function edit(Question $question)
     {
         $this->authorizeOwner($question);
-        return view('questions.edit', compact('question'));
+        //return view('questions.edit', compact('question'));
+        return Inertia::render('Questions/Edit', ['question' => $question]);
     }
 
     /**

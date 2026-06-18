@@ -1,9 +1,14 @@
 <?php
 
+/* use Inertia\Inertia; */
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\DashboardController;
+
+use App\Http\Controllers\BtnTaklifController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,8 +24,21 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    /* return Inertia::render('HomePage', [
+        'auth' => [
+            'user' => auth()->user(),
+        ],
+    ]); */
+    //return Inertia::render('HomePage');
+    return view('app');
+})->name('home');
+
+Route::get('/login', [UserController::class, 'showLogin'])->name('login');
+Route::get('/register', [UserController::class, 'showRegister'])->name('register');
+
+Route::post('/login', [UserController::class, 'login']);
+
+Route::resource('users', UserController::class)->except(['showLogin', 'showRegister']);
 
 Route::middleware(['auth'])->group(function () {
 
@@ -39,8 +57,10 @@ Route::middleware(['auth'])->group(function () {
     // منابع سوالات
     Route::resource('questions', QuestionController::class);
 
-    // (اختیاری) نمایش پاسخ‌های یک آزمون
+    // نمایش پاسخ‌های یک آزمون
     Route::get('/exams/{exam}/answers', [AnswerController::class, 'index'])->name('answers.index');
 });
+
+Route::get('/buttonTaklif', [BtnTaklifController::class, 'index'])->name("buttonTaklif.index");
 
 require __DIR__.'/auth.php';

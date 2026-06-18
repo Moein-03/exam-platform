@@ -6,6 +6,7 @@ use App\Models\Exam;
 use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 
 class ExamController extends Controller
@@ -21,7 +22,8 @@ class ExamController extends Controller
         } else {
             $exams = Exam::active()->where('status', 'فعال')->orderBy('exam_date', 'desc')->paginate(10);
         }
-        return view('exams.index', compact('exams'));
+        //return view('exams.index', compact('exams'));
+        return Inertia::render('Exams/Index', ['exams' => $exams]);
     }
 
     /**
@@ -30,7 +32,8 @@ class ExamController extends Controller
     public function create()
     {
         $this->authorizeTeacher();
-        return view('exams.create');
+        //return view('exams.create');
+        return Inertia::render('Exams/Create');
     }
 
     /**
@@ -71,9 +74,11 @@ class ExamController extends Controller
 
         // اگر معلم مالک آزمون است یا برای دانشجو آزمون فعال است و مجاز به دیدن
         if ($user->isTeacher() && $exam->created_by == $user->id) {
-            return view('exams.show', compact('exam'));
+            //return view('exams.show', compact('exam'));
+            return Inertia::render('Exams/Show', ['exam' => $exam]);
         } elseif ($exam->status === 'فعال') {
-            return view('exams.show', compact('exam'));
+            //return view('exams.show', compact('exam'));
+            return Inertia::render('Exams/Show', ['exam' => $exam]);
         }
         abort(404, 'آزمون یافت نشد.');
     }
@@ -84,7 +89,8 @@ class ExamController extends Controller
     public function edit(Exam $exam)
     {
         $this->authorizeOwner($exam);
-        return view('exams.edit', compact('exam'));
+        //return view('exams.edit', compact('exam'));
+        return Inertia::render('Exams/Edit', ['exam' => $exam]);
     }
 
     /**
@@ -127,7 +133,12 @@ class ExamController extends Controller
         $this->authorizeOwner($exam);
         $questions = Question::where('created_by', auth()->id())->get();
         $selectedQuestions = $exam->questions()->pluck('question_id')->toArray();
-        return view('exams.manage_questions', compact('exam', 'questions', 'selectedQuestions'));
+        //return view('exams.manage_questions', compact('exam', 'questions', 'selectedQuestions'));
+        return Inertia::render('Exams/ManageQuestions', [
+            'exam' => $exam,
+            'questions' => $questions,
+            'selectedQuestions' => $selectedQuestions,
+        ]);
     }
 
     public function attachQuestions(Request $request, Exam $exam)
@@ -173,7 +184,11 @@ class ExamController extends Controller
         }
 
         $questions = $exam->questions()->orderBy('order')->get();
-        return view('exams.take', compact('exam', 'questions'));
+        //return view('exams.take', compact('exam', 'questions'));
+        return Inertia::render('Exams/Take', [
+            'exam' => $exam,
+            'questions' => $questions,
+        ]);
     }
 
     public function submit(Request $request, Exam $exam)
@@ -227,7 +242,12 @@ class ExamController extends Controller
         }
         $answers = Answer::where('exam_id', $exam->id)->where('user_id', $user->id)->with('question')->get();
 
-        return view('exams.results', compact('exam', 'answers', 'examUser'));
+        //return view('exams.results', compact('exam', 'answers', 'examUser'));
+        return Inertia::render('Exams/Results', [
+            'exam' => $exam,
+            'answers' => $answers,
+            'score' => $examUser->pivot->score,
+        ]);
     }
 
     private function authorizeTeacher()

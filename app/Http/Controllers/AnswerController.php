@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Answer;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class AnswerController extends Controller
 {
@@ -15,7 +16,11 @@ class AnswerController extends Controller
         $user = auth()->user();
         $answers = Answer::where('exam_id', $exam->id)->where('user_id', $user->id)->with('question')->get();
         
-        return view('answers.index', compact('answers', 'exam'));
+        //return view('answers.index', compact('answers', 'exam'));
+        return Inertia::render('Answers/Index', [
+            'exam' => $exam,
+            'answers' => $answers,
+        ]);
     }
 
     /**
