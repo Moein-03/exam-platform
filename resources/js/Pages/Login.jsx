@@ -21,6 +21,7 @@ const Login = () => {
           onSubmit: async (values, { setSubmitting }) => {
                setError('');
                try {
+                    axios.defaults.withCredentials = true;
                     await axios.get('/sanctum/csrf-cookie', {
                          withCredentials: true
                     });
