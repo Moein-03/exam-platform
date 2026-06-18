@@ -5,7 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import HomePage from './Pages/HomePage';
-//import Dashboard from './Pages/Dashboard';
+import Dashboard from './Pages/Dashboard';
 import Login from './Pages/Login';
 import Register from './Pages/Register';
 
@@ -19,7 +19,8 @@ const theme = createTheme({
 const components = {
      HomePage,
      Login,
-     Register
+     Register,
+     Dashboard
 };
 
 const pageName = window.pageName || 'HomePage';

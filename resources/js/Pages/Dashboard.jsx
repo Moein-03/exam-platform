@@ -7,10 +7,10 @@ import { toast } from 'react-toastify';
 
 const Dashboard = ({ role, examsCount, questionsCount, avgScore, examsTaken }) => {
      const { auth } = usePage().props;
-     const [stats, setStats] = useState(null);
-     const [loading, setLoading] = useState(true);
+     /* const [stats, setStats] = useState(null);
+     const [loading, setLoading] = useState(true); */
 
-     useEffect(() => {
+     /* useEffect(() => {
           axios.get('/api/dashboard-stats').then(response => {
                     setStats(response.data);
                     setLoading(false);
@@ -18,7 +18,14 @@ const Dashboard = ({ role, examsCount, questionsCount, avgScore, examsTaken }) =
                toast.error(error + 'خطا در دریافت اطلاعات:');
                setLoading(false);
           });
-     }, []);
+     }, []); */
+
+     const stats = {
+          examsCount: examsCount || 0,
+          questionsCount: questionsCount || 0,
+          avgScore: avgScore || 0,
+          examsTaken: examsTaken || 0,
+     };
 
      if (loading) return <CircularProgress />;
 
