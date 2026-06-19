@@ -21,6 +21,7 @@ import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import LogoutIcon from '@mui/icons-material/Logout';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const drawerWidth = 240;
@@ -111,23 +112,23 @@ const AuthenticatedLayout = ({ user, children, header }) => {
                <AppBarStyled position="fixed" open={open}>
                     <Toolbar>
                          <IconButton
-                         color="inherit"
-                         aria-label="open drawer"
-                         onClick={handleDrawerOpen}
-                         edge="start"
-                         sx={{ mr: 2, ...(open && { display: 'none' }) }}
+                              color="inherit"
+                              aria-label="open drawer"
+                              onClick={handleDrawerOpen}
+                              edge="start"
+                              sx={{ mr: 2, ...(open && { display: 'none' }) }}
                          >
-                         <MenuIcon />
+                              <MenuIcon />
                          </IconButton>
                          <Typography variant="h6" noWrap component="div">
-                         {header || 'پلتفرم آزمون آنلاین'}
+                              {header || 'پلتفرم آزمون آنلاین'}
                          </Typography>
                          <Box sx={{ flexGrow: 1 }} />
                          <Typography variant="body2" sx={{ ml: 2 }}>
-                         {user?.name}
+                              {user?.name}
                          </Typography>
                          <IconButton color="inherit" onClick={handleLogout}>
-                         <LogoutIcon />
+                              <LogoutIcon />
                          </IconButton>
                     </Toolbar>
                </AppBarStyled>
@@ -137,8 +138,8 @@ const AuthenticatedLayout = ({ user, children, header }) => {
                          width: drawerWidth,
                          flexShrink: 0,
                          '& .MuiDrawer-paper': {
-                         width: drawerWidth,
-                         boxSizing: 'border-box'
+                              width: drawerWidth,
+                              boxSizing: 'border-box'
                          }
                     }}
                     variant="persistent"
@@ -147,18 +148,18 @@ const AuthenticatedLayout = ({ user, children, header }) => {
                >
                     <DrawerHeader>
                          <IconButton onClick={handleDrawerClose}>
-                         {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                              {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
                          </IconButton>
                     </DrawerHeader>
                     <Divider />
                     <List>
                          {menuItems.map((item) => (
-                         <ListItem key={item.text} disablePadding>
-                              <ListItemButton component="a" href={item.path}>
-                                   <ListItemIcon>{item.icon}</ListItemIcon>
-                                   <ListItemText primary={item.text} />
-                              </ListItemButton>
-                         </ListItem>
+                              <ListItem key={item.text} disablePadding>
+                                   <ListItemButton component="a" href={item.path}>
+                                        <ListItemIcon>{item.icon}</ListItemIcon>
+                                        <ListItemText primary={item.text} />
+                                   </ListItemButton>
+                              </ListItem>
                          ))}
                     </List>
                </Drawer>

@@ -4,16 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Exam;
 use App\Models\Question;
+use App\Models\Answer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Inertia\Inertia;
-
 
 class ExamController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $user = auth()->user();
@@ -22,23 +18,16 @@ class ExamController extends Controller
         } else {
             $exams = Exam::active()->where('status', 'فعال')->orderBy('exam_date', 'desc')->paginate(10);
         }
-        //return view('exams.index', compact('exams'));
-        return Inertia::render('Exams/Index', ['exams' => $exams]);
+
+        return view('exams.index', compact('exams'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $this->authorizeTeacher();
-        //return view('exams.create');
-        return Inertia::render('Exams/Create');
+        return view('exams.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $this->authorizeTeacher();
@@ -64,38 +53,24 @@ class ExamController extends Controller
         return redirect()->route('exams.show', $exam->slug)->with('success', 'آزمون با موفقیت ساخته شد.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($slug)
     {
         $exam = Exam::where('slug', $slug)->firstOrFail();
         $user = auth()->user();
 
-        // اگر معلم مالک آزمون است یا برای دانشجو آزمون فعال است و مجاز به دیدن
-        if ($user->isTeacher() && $exam->created_by == $user->id) {
-            //return view('exams.show', compact('exam'));
-            return Inertia::render('Exams/Show', ['exam' => $exam]);
-        } elseif ($exam->status === 'فعال') {
-            //return view('exams.show', compact('exam'));
-            return Inertia::render('Exams/Show', ['exam' => $exam]);
+        if ($user->isTeacher() && $exam->created_by == $user->id || $exam->status === 'فعال') {
+            return view('exams.show', compact('exam'));
         }
+
         abort(404, 'آزمون یافت نشد.');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Exam $exam)
     {
         $this->authorizeOwner($exam);
-        //return view('exams.edit', compact('exam'));
-        return Inertia::render('Exams/Edit', ['exam' => $exam]);
+        return view('exams.edit', compact('exam'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Exam $exam)
     {
         $this->authorizeOwner($exam);
@@ -118,9 +93,6 @@ class ExamController extends Controller
         return redirect()->route('exams.show', $exam->slug)->with('success', 'آزمون به روز شد.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Exam $exam)
     {
         $this->authorizeOwner($exam);
@@ -133,12 +105,8 @@ class ExamController extends Controller
         $this->authorizeOwner($exam);
         $questions = Question::where('created_by', auth()->id())->get();
         $selectedQuestions = $exam->questions()->pluck('question_id')->toArray();
-        //return view('exams.manage_questions', compact('exam', 'questions', 'selectedQuestions'));
-        return Inertia::render('Exams/ManageQuestions', [
-            'exam' => $exam,
-            'questions' => $questions,
-            'selectedQuestions' => $selectedQuestions,
-        ]);
+
+        return view('exams.manage_questions', compact('exam', 'questions', 'selectedQuestions'));
     }
 
     public function attachQuestions(Request $request, Exam $exam)
@@ -156,11 +124,9 @@ class ExamController extends Controller
     public function start(Exam $exam)
     {
         $user = auth()->user();
-        if (!$user->isStudent())
-            abort(403);
+        if (!$user->isStudent()) abort(403);
 
-        if ($exam->status !== 'فعال')
-            abort(404);
+        if ($exam->status !== 'فعال') abort(404);
 
         $examUser = $exam->students()->where('user_id', $user->id)->first();
         if (!$examUser) {
@@ -169,26 +135,19 @@ class ExamController extends Controller
                 'started_at' => now(),
             ]);
             $examUser = $exam->students()->where('user_id', $user->id)->first();
-
-        } elseif ($examUser->pivot->status === 'finished')
+        } elseif ($examUser->pivot->status === 'finished') {
             return redirect()->route('exams.results', $exam->slug)->with('info', 'شما قبلاً در این آزمون شرکت کرده‌اید.');
-        
-        
-        // اگر سوالات تصادفی است، موقع شروع سوالات را انتخاب و ذخیره کن
+        }
+
         if ($exam->question_selection_type === 'random') {
             $randomQuestions = Question::inRandomOrder()->limit($exam->question_count)->get();
-
             $exam->questions()->sync($randomQuestions->pluck('id')->mapWithKeys(function ($id, $index) {
                 return [$id => ['order' => $index + 1]];
             }));
         }
 
         $questions = $exam->questions()->orderBy('order')->get();
-        //return view('exams.take', compact('exam', 'questions'));
-        return Inertia::render('Exams/Take', [
-            'exam' => $exam,
-            'questions' => $questions,
-        ]);
+        return view('exams.take', compact('exam', 'questions'));
     }
 
     public function submit(Request $request, Exam $exam)
@@ -242,12 +201,7 @@ class ExamController extends Controller
         }
         $answers = Answer::where('exam_id', $exam->id)->where('user_id', $user->id)->with('question')->get();
 
-        //return view('exams.results', compact('exam', 'answers', 'examUser'));
-        return Inertia::render('Exams/Results', [
-            'exam' => $exam,
-            'answers' => $answers,
-            'score' => $examUser->pivot->score,
-        ]);
+        return view('exams.results', compact('exam', 'answers', 'examUser'));
     }
 
     private function authorizeTeacher()

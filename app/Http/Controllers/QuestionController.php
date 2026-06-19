@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Question;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class QuestionController extends Controller
 {
@@ -14,10 +13,11 @@ class QuestionController extends Controller
     public function index()
     {
         $this->authorizeTeacher();
-        $questions = Question::where('created_by', auth()->id())->orderBy('created_at', 'desc')->paginate(10);
+        $questions = Question::where('created_by', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
-        //return view('questions.index', compact('questions'));
-        return Inertia::render('Questions/Index', ['questions' => $questions]);
+        return view('questions.index', compact('questions'));
     }
 
     /**
@@ -26,8 +26,7 @@ class QuestionController extends Controller
     public function create()
     {
         $this->authorizeTeacher();
-        //return view('questions.create');
-        return Inertia::render('Questions/Create');
+        return view('questions.create');
     }
 
     /**
@@ -47,7 +46,9 @@ class QuestionController extends Controller
 
         $validated['created_by'] = auth()->id();
         Question::create($validated);
-        return redirect()->route('questions.index')->with('success', 'سوال با موفقیت ایجاد شد.');
+
+        return redirect()->route('questions.index')
+            ->with('success', 'سوال با موفقیت ایجاد شد.');
     }
 
     /**
@@ -56,8 +57,7 @@ class QuestionController extends Controller
     public function show(Question $question)
     {
         $this->authorizeOwner($question);
-        //return view('questions.show', compact('question'));
-        return Inertia::render('Questions/Show', ['question' => $question]);
+        return view('questions.show', compact('question'));
     }
 
     /**
@@ -66,8 +66,7 @@ class QuestionController extends Controller
     public function edit(Question $question)
     {
         $this->authorizeOwner($question);
-        //return view('questions.edit', compact('question'));
-        return Inertia::render('Questions/Edit', ['question' => $question]);
+        return view('questions.edit', compact('question'));
     }
 
     /**
@@ -86,7 +85,9 @@ class QuestionController extends Controller
         ]);
 
         $question->update($validated);
-        return redirect()->route('questions.index')->with('success', 'سوال به روز شد.');
+
+        return redirect()->route('questions.index')
+            ->with('success', 'سوال به روز شد.');
     }
 
     /**
@@ -96,20 +97,23 @@ class QuestionController extends Controller
     {
         $this->authorizeOwner($question);
         $question->delete();
-        return redirect()->route('questions.index')->with('success', 'سوال حذف شد.');
+
+        return redirect()->route('questions.index')
+            ->with('success', 'سوال حذف شد.');
     }
 
     private function authorizeTeacher()
     {
-        if (!auth()->user()->isTeacher())
-            abort(403);
+        if (!auth()->user()->isTeacher()) {
+            abort(403, 'فقط معلم‌ها مجاز به دسترسی هستند.');
+        }
     }
 
     private function authorizeOwner(Question $question)
     {
         $user = auth()->user();
         if (!$user->isTeacher() || $question->created_by !== $user->id) {
-            abort(403);
+            abort(403, 'شما اجازه دسترسی به این سوال را ندارید.');
         }
     }
 }
