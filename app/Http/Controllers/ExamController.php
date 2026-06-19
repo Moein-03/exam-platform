@@ -42,7 +42,7 @@ class ExamController extends Controller
             'category' => 'nullable|string|max:100',
             'question_selection_type' => 'required|in:manual,random',
             'allow_download' => 'boolean',
-            'detailed_feedback' => 'boolean',
+            'detailed_feedback' => 'boolean'
         ]);
 
         $validated['slug'] = Str::slug($validated['title']) . '-' . uniqid();
@@ -114,7 +114,7 @@ class ExamController extends Controller
         $this->authorizeOwner($exam);
         $request->validate([
             'questions' => 'required|array',
-            'questions.*' => 'exists:questions,id',
+            'questions.*' => 'exists:questions,id'
         ]);
 
         $exam->questions()->sync($request->questions);
@@ -132,7 +132,7 @@ class ExamController extends Controller
         if (!$examUser) {
             $exam->students()->attach($user->id, [
                 'status' => 'in_progress',
-                'started_at' => now(),
+                'started_at' => now()
             ]);
             $examUser = $exam->students()->where('user_id', $user->id)->first();
         } elseif ($examUser->pivot->status === 'finished') {
@@ -160,7 +160,7 @@ class ExamController extends Controller
 
         $request->validate([
             'answers' => 'required|array',
-            'answers.*' => 'required|string',
+            'answers.*' => 'required|string'
         ]);
 
         // ذخیره پاسخ‌ها
@@ -171,12 +171,12 @@ class ExamController extends Controller
                 [
                     'exam_id' => $exam->id,
                     'user_id' => $user->id,
-                    'question_id' => $questionId,
+                    'question_id' => $questionId
                 ],
                 [
                     'selected_answer' => $selectedAnswer,
                     'is_correct' => $isCorrect,
-                    'time_spent_seconds' => $request->input("time_$questionId", 0),
+                    'time_spent_seconds' => $request->input("time_$questionId", 0)
                 ]
             );
         }
@@ -186,7 +186,7 @@ class ExamController extends Controller
         $exam->students()->updateExistingPivot($user->id, [
             'finished_at' => now(),
             'score' => $totalScore,
-            'status' => 'finished',
+            'status' => 'finished'
         ]);
 
         return redirect()->route('exams.results', $exam->slug)->with('success', 'پاسخ‌های شما ثبت شد. نمره شما محاسبه گردید.');

@@ -43,7 +43,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'role' => ['required', Rule::in(['student', 'teacher'])],
-            'university_id' => 'nullable|string|max:50',
+            'university_id' => 'nullable|string|max:50'
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -57,7 +57,7 @@ class UserController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'password' => 'required',
+            'password' => 'required'
         ]);
 
         if (Auth::attempt($request->only('email', 'password'), true)) {
@@ -88,7 +88,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'role' => ['required', Rule::in(['student', 'teacher'])],
-            'university_id' => 'nullable|string|max:50',
+            'university_id' => 'nullable|string|max:50'
         ]);
 
         if ($request->filled('password')) {
