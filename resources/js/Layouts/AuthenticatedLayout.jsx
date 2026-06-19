@@ -19,8 +19,8 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import QuizIcon from '@mui/icons-material/Quiz';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { Link, router } from '@inertiajs/react';
-import { ToastContainer } from 'react-toastify';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const drawerWidth = 240;
@@ -33,7 +33,6 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
                easing: theme.transitions.easing.sharp,
                duration: theme.transitions.duration.leavingScreen
           }),
-          
           marginLeft: `-${drawerWidth}px`,
           ...(open && {
                transition: theme.transitions.create('margin', {
@@ -73,52 +72,73 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 const AuthenticatedLayout = ({ user, children, header }) => {
      const theme = useTheme();
      const [open, setOpen] = React.useState(true);
+
      const handleDrawerOpen = () => setOpen(true);
      const handleDrawerClose = () => setOpen(false);
 
-     const handleLogout = () => {
-          router.post(route('logout'));
+     const handleLogout = async () => {
+          try {
+               await axios.get('/sanctum/csrf-cookie', { withCredentials: true });
+               
+               await axios.post('/logout', {}, {
+                    withCredentials: true,
+                    headers: {
+                         'Content-Type': 'application/json',
+                         'X-Requested-With': 'XMLHttpRequest'
+                    }
+               });
+
+               toast.success('با موفقیت خارج شدید');
+               setTimeout(() => {
+                    window.location.href = '/login';
+               }, 800);
+          } catch (err) {
+               console.error(err);
+               toast.error('خطا در خروج از حساب');
+          }
      };
 
      const menuItems = [
-          { text: 'داشبورد', icon: <DashboardIcon />, route: 'dashboard' },
-          { text: 'آزمون‌ها', icon: <QuizIcon />, route: 'exams.index' },
-          { text: 'سوالات', icon: <QuestionAnswerIcon />, route: 'questions.index' },
+          { text: 'داشبورد', icon: <DashboardIcon />, path: '/dashboard' },
+          { text: 'آزمون‌ها', icon: <QuizIcon />, path: '/exams' },
+          { text: 'سوالات', icon: <QuestionAnswerIcon />, path: '/questions' },
      ];
 
      return (
           <Box sx={{ display: 'flex', direction: 'rtl' }}>
                <ToastContainer position="top-right" rtl />
+
                <AppBarStyled position="fixed" open={open}>
                     <Toolbar>
                          <IconButton
-                              color="inherit"
-                              aria-label="open drawer"
-                              onClick={handleDrawerOpen}
-                              edge="start"
-                              sx={{ mr: 2, ...(open && { display: 'none' }) }}
+                         color="inherit"
+                         aria-label="open drawer"
+                         onClick={handleDrawerOpen}
+                         edge="start"
+                         sx={{ mr: 2, ...(open && { display: 'none' }) }}
                          >
                          <MenuIcon />
                          </IconButton>
                          <Typography variant="h6" noWrap component="div">
-                              {header || 'پلتفرم آزمون آنلاین'}
+                         {header || 'پلتفرم آزمون آنلاین'}
                          </Typography>
                          <Box sx={{ flexGrow: 1 }} />
                          <Typography variant="body2" sx={{ ml: 2 }}>
-                              {user?.name}
+                         {user?.name}
                          </Typography>
                          <IconButton color="inherit" onClick={handleLogout}>
-                              <LogoutIcon />
+                         <LogoutIcon />
                          </IconButton>
                     </Toolbar>
                </AppBarStyled>
+
                <Drawer
                     sx={{
                          width: drawerWidth,
                          flexShrink: 0,
                          '& .MuiDrawer-paper': {
-                              width: drawerWidth,
-                              boxSizing: 'border-box'
+                         width: drawerWidth,
+                         boxSizing: 'border-box'
                          }
                     }}
                     variant="persistent"
@@ -127,27 +147,28 @@ const AuthenticatedLayout = ({ user, children, header }) => {
                >
                     <DrawerHeader>
                          <IconButton onClick={handleDrawerClose}>
-                              {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                         {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
                          </IconButton>
                     </DrawerHeader>
                     <Divider />
                     <List>
                          {menuItems.map((item) => (
-                              <ListItem key={item.text} disablePadding>
-                                   <ListItemButton component={Link} href={route(item.route)}>
-                                        <ListItemIcon>{item.icon}</ListItemIcon>
-                                        <ListItemText primary={item.text} />
-                                   </ListItemButton>
-                              </ListItem>
+                         <ListItem key={item.text} disablePadding>
+                              <ListItemButton component="a" href={item.path}>
+                                   <ListItemIcon>{item.icon}</ListItemIcon>
+                                   <ListItemText primary={item.text} />
+                              </ListItemButton>
+                         </ListItem>
                          ))}
                     </List>
                </Drawer>
+
                <Main open={open}>
                     <DrawerHeader />
                     {children}
                </Main>
           </Box>
      );
-}
+};
 
 export default AuthenticatedLayout;
