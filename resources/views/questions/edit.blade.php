@@ -1,13 +1,11 @@
-@extends('layouts.app')
-
-@section('content')
+<x-layouts.app>
      <div id="app"></div>
 
      <script>
           window.pageName = 'QuestionsEdit';
           window.pageProps = @json([
                'question' => $question,
-               'user' => auth()->user()
+               'user'  => auth()->user()
           ]);
      </script>
-@endsection
+</x-layouts.app>
