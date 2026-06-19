@@ -105,7 +105,7 @@ class QuestionController extends Controller
     private function authorizeTeacher()
     {
         if (!auth()->user()->isTeacher()) {
-            abort(403, 'فقط معلم‌ها دسترسی دارند.');
+            abort(403, 'فقط استادان دسترسی دارند.');
         }
     }
 

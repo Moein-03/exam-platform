@@ -8,6 +8,7 @@ import HomePage from './Pages/HomePage';
 import Dashboard from './Pages/Dashboard';
 import Login from './Pages/Login';
 import Register from './Pages/Register';
+import ReportsIndex from './Pages/ReportsIndex';
 
 import '../css/app.css';
 
@@ -20,7 +21,8 @@ const components = {
      HomePage,
      Login,
      Register,
-     Dashboard
+     Dashboard,
+     ReportsIndex
 };
 
 const pageName = window.pageName || 'HomePage';

@@ -1,8 +1,10 @@
 <?php
 
 /* use Inertia\Inertia; */
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\DashboardController;
@@ -23,15 +25,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::get('/', function () {
-    /* return Inertia::render('HomePage', [
-        'auth' => [
-            'user' => auth()->user(),
-        ],
-    ]); */
-    //return Inertia::render('HomePage');
-    return view('app');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/login', [UserController::class, 'showLogin'])->name('login');
 Route::get('/register', [UserController::class, 'showRegister'])->name('register');
@@ -50,9 +44,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/exams/{exam:slug}', [ExamController::class, 'show'])->name('exams.show');
     Route::get('/exams/{exam:slug}/manage-questions', [ExamController::class, 'manageQuestions'])->name('exams.manage_questions');
     Route::post('/exams/{exam:slug}/attach-questions', [ExamController::class, 'attachQuestions'])->name('exams.attach_questions');
+    Route::get('/exams/{exam}/take', [ExamController::class, 'start'])->name('exams.take');
     Route::get('/exams/{exam:slug}/start', [ExamController::class, 'start'])->name('exams.start');
     Route::post('/exams/{exam:slug}/submit', [ExamController::class, 'submit'])->name('exams.submit');
     Route::get('/exams/{exam:slug}/results', [ExamController::class, 'results'])->name('exams.results');
+
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/my-results', [ExamController::class, 'myResults'])->name('my.results');
 
     // منابع سوالات
     Route::resource('questions', QuestionController::class);

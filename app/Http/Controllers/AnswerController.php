@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Answer;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
+// use Inertia\Inertia;
 
 class AnswerController extends Controller
 {
