@@ -4,8 +4,8 @@
      <script>
           window.pageName = 'QuestionsIndex';
           window.pageProps = @json([
-               'question' => $question,
-               'user'  => auth()->user()
+               'questions' => $questions,
+               'user' => auth()->user()
           ]);
      </script>
 </x-layouts.app>

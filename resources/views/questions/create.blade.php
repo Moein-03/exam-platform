@@ -4,8 +4,7 @@
      <script>
           window.pageName = 'QuestionsCreate';
           window.pageProps = @json([
-               'question' => $question,
-               'user'  => auth()->user()
+               'user' => auth()->user()
           ]);
      </script>
 </x-layouts.app>

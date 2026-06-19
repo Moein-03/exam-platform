@@ -105,7 +105,7 @@ class QuestionController extends Controller
     private function authorizeTeacher()
     {
         if (!auth()->user()->isTeacher()) {
-            abort(403, 'فقط معلم‌ها مجاز به دسترسی هستند.');
+            abort(403, 'فقط معلم‌ها دسترسی دارند.');
         }
     }
 
@@ -113,7 +113,7 @@ class QuestionController extends Controller
     {
         $user = auth()->user();
         if (!$user->isTeacher() || $question->created_by !== $user->id) {
-            abort(403, 'شما اجازه دسترسی به این سوال را ندارید.');
+            abort(403, 'شما دسترسی به این سوال را ندارید.');
         }
     }
 }
