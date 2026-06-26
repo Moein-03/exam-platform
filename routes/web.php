@@ -41,6 +41,7 @@ Route::middleware(['auth'])->group(function () {
 
     // منابع آزمون‌ها
     Route::resource('exams', ExamController::class)->except(['show']);
+    Route::get('/exams', [ExamController::class, 'index'])->name('exams.index');
     Route::get('/exams/{exam:slug}', [ExamController::class, 'show'])->name('exams.show');
     Route::get('/exams/{exam:slug}/manage-questions', [ExamController::class, 'manageQuestions'])->name('exams.manage_questions');
     Route::post('/exams/{exam:slug}/attach-questions', [ExamController::class, 'attachQuestions'])->name('exams.attach_questions');
@@ -50,7 +51,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/exams/{exam:slug}/results', [ExamController::class, 'results'])->name('exams.results');
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('/my-results', [ExamController::class, 'myResults'])->name('my.results');
+    Route::get('/my-results', [ExamController::class, 'myResults'])->name('exams.results');
 
     // منابع سوالات
     Route::resource('questions', QuestionController::class);

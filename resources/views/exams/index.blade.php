@@ -3,9 +3,6 @@
 
      <script>
           window.pageName = 'ExamsIndex';
-          window.pageProps = @json([
-               'exams' => $exams,
-               'user'  => auth()->user()
-          ]);
+          window.pageProps = @json($pageProps);
      </script>
 </x-layouts.app>

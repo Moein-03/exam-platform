@@ -15,8 +15,18 @@ class ExamController extends Controller
         $user = auth()->user();
         if ($user->isTeacher()) {
             $exams = Exam::where('created_by', $user->id)->orderBy('created_at', 'desc')->paginate(10);
+
+            $pageProps = [
+                'isTeacher' => true,
+                'exams' => $exams
+            ];
         } else {
             $exams = Exam::active()->where('status', 'فعال')->orderBy('exam_date', 'desc')->paginate(10);
+
+            $pageProps = [
+                'isTeacher' => false,
+                'exams' => $exams
+            ];
         }
 
         return view('exams.index', compact('exams'));

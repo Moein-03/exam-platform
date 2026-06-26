@@ -8,7 +8,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { toast } from 'react-toastify';
 
-const ExamIndex = ({ exams, auth }) => {
+const ExamIndex = ({ isTeacher, exams }) => {
      const [page, setPage] = useState(exams.current_page);
 
      const handleDelete = (id) => {
@@ -22,7 +22,7 @@ const ExamIndex = ({ exams, auth }) => {
      return (
           <AuthenticatedLayout user={auth.user} header="مدیریت آزمون‌ها">
                <Box sx={{ mb: 2 }}>
-                    {auth.user.role === 'teacher' && (
+                    {isTeacher && (
                          <Button variant="contained" startIcon={<AddIcon />} component={Link} href={route('exams.create')}>
                          آزمون جدید
                          </Button>
@@ -50,13 +50,13 @@ const ExamIndex = ({ exams, auth }) => {
                                         </TableCell>
                                         <TableCell>
                                              <Button size="small" startIcon={<VisibilityIcon />} component={Link} href={route('exams.show', exam.slug)}>مشاهده</Button>
-                                             {auth.user.role === 'teacher' && exam.created_by === auth.user.id && (
+                                             {isTeacher && exam.created_by === auth.user.id && (
                                                   <>
                                                        <Button size="small" startIcon={<EditIcon />} component={Link} href={route('exams.edit', exam.id)}>ویرایش</Button>
                                                        <Button size="small" startIcon={<DeleteIcon />} onClick={() => handleDelete(exam.id)}>حذف</Button>
                                                   </>
                                              )}
-                                             {auth.user.role === 'student' && exam.status === 'فعال' && (
+                                             {(!isTeacher) && exam.status === 'فعال' && (
                                                   <Button size="small" color="success" component={Link} href={route('exams.start', exam.slug)}>شروع آزمون</Button>
                                              )}
                                         </TableCell>
