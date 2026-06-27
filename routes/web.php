@@ -35,9 +35,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // منابع آزمون‌ها
-    Route::resource('exams', ExamController::class)->except(['show']);
-    Route::get('/exams', [ExamController::class, 'index'])->name('exams.index');
-    //Route::get('/exams', [ExamController::class, 'create'])->name('exams.create');
+    Route::resource('exams', ExamController::class)->except(['show', 'create']);
+    Route::get('/exams/create', [ExamController::class, 'create'])->name('exams.create');
     Route::get('/exams/{exam:slug}', [ExamController::class, 'show'])->name('exams.show');
     Route::get('/exams/{exam:slug}/manage-questions', [ExamController::class, 'manageQuestions'])->name('exams.manage_questions');
     Route::post('/exams/{exam:slug}/attach-questions', [ExamController::class, 'attachQuestions'])->name('exams.attach_questions');

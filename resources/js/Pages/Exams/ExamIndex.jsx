@@ -23,7 +23,7 @@ const ExamIndex = ({ isTeacher, exams }) => {
           <AuthenticatedLayout user={auth.user} header="مدیریت آزمون‌ها">
                <Box sx={{ mb: 2 }}>
                     {isTeacher && (
-                         <Button variant="contained" startIcon={<AddIcon />} component={Link} href={route('exams.create')}>
+                         <Button variant="contained" startIcon={<AddIcon />} component={Link} href='/exams/create'>
                          آزمون جدید
                          </Button>
                     )}
