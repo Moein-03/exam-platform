@@ -18,20 +18,20 @@ class ExamController extends Controller
 
             $pageProps = [
                 'isTeacher' => true,
-                'exams' => $exams
+                'exams' => $exams,
+                'auth' => ['user' => $user]
             ];
         } else {
             $exams = Exam::active()->where('status', 'فعال')->orderBy('exam_date', 'desc')->paginate(10);
 
             $pageProps = [
                 'isTeacher' => false,
-                'exams' => $exams
+                'exams' => $exams,
+                'auth' => ['user' => $user]
             ];
         }
 
-        return view('exams.index',  [
-            'pageProps' => $pageProps
-        ]);
+        return view('exams.index', ['pageProps' => $pageProps]);
     }
 
     public function create()
