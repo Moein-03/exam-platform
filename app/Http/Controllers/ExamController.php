@@ -29,7 +29,9 @@ class ExamController extends Controller
             ];
         }
 
-        return view('exams.index', compact('exams'));
+        return view('exams.index',  [
+            'pageProps' => $pageProps
+        ]);
     }
 
     public function create()
