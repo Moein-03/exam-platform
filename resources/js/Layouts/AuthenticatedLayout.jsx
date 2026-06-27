@@ -70,7 +70,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
      justifyContent: 'flex-end'
 }));
 
-const AuthenticatedLayout = ({ user, children, header }) => {
+const AuthenticatedLayout = ({ user, children, header, isTeacher }) => {
      const theme = useTheme();
      const [open, setOpen] = React.useState(true);
 
@@ -99,14 +99,19 @@ const AuthenticatedLayout = ({ user, children, header }) => {
           }
      };
 
-     const menuItems = [
+     const TeacherMenuItems = [
           { text: 'داشبورد', icon: <DashboardIcon />, path: '/dashboard' },
           { text: 'آزمون‌ها', icon: <QuizIcon />, path: '/exams' },
           { text: 'سوالات', icon: <QuestionAnswerIcon />, path: '/questions' },
      ];
 
+     const StudentMenuItems = [
+          { text: 'داشبورد', icon: <DashboardIcon />, path: '/dashboard' },
+          { text: 'آزمون‌ها', icon: <QuizIcon />, path: '/exams' }
+     ];
+
      return (
-          <Box sx={{ display: 'flex', direction: 'rtl' }}>
+          <Box sx={{ display: 'flex', direction: 'ltr' }}>
                <ToastContainer position="top-right" rtl />
 
                <AppBarStyled position="fixed" open={open}>
@@ -153,7 +158,15 @@ const AuthenticatedLayout = ({ user, children, header }) => {
                     </DrawerHeader>
                     <Divider />
                     <List>
-                         {menuItems.map((item) => (
+                         {isTeacher ? TeacherMenuItems.map((item) => (
+                              <ListItem key={item.text} disablePadding>
+                                   <ListItemButton component="a" href={item.path}>
+                                        <ListItemIcon>{item.icon}</ListItemIcon>
+                                        <ListItemText primary={item.text} />
+                                   </ListItemButton>
+                              </ListItem>
+
+                         )) : StudentMenuItems.map((item) => (
                               <ListItem key={item.text} disablePadding>
                                    <ListItemButton component="a" href={item.path}>
                                         <ListItemIcon>{item.icon}</ListItemIcon>

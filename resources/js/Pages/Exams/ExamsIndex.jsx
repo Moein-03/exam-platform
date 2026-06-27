@@ -34,8 +34,8 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
     };
 
     return (
-        <AuthenticatedLayout user={auth.user} header="مدیریت آزمون‌ها">
-            <Box sx={{ mb: 2 }}>
+        <AuthenticatedLayout user={auth.user} header="مدیریت آزمون‌ها" isTeacher={isTeacher}>
+            <Box sx={{ mb: 2, direction: "rtl" }}>
                 {isTeacher && (
                     <Button
                         variant="contained"

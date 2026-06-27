@@ -1,0 +1,11 @@
+<x-layouts.app>
+     <div id="app"></div>
+
+     <script>
+          window.pageName = 'ExamsIndex';
+          window.pageProps = @json($pageProps ?? []);
+     </script>
+
+     @viteReactRefresh
+     @vite(['resources/js/app.jsx'])
+</x-layouts.app>

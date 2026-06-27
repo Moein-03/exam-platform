@@ -36,8 +36,8 @@ const Dashboard = ({
      }
 
      return (
-          <AuthenticatedLayout user={user}>
-               <div style={{ padding: '20px' }}>
+          <AuthenticatedLayout user={user} isTeacher={isTeacher}>
+               <div style={{ padding: '20px', direction: 'rtl' }}>
                     <Grid container spacing={3}>
                          {isTeacher ? (
                          <>
