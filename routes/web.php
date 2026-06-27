@@ -1,6 +1,5 @@
 <?php
 
-/* use Inertia\Inertia; */
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ExamController;
@@ -8,9 +7,8 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\DashboardController;
-
 use App\Http\Controllers\BtnTaklifController;
-
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,12 +24,9 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
 Route::get('/login', [UserController::class, 'showLogin'])->name('login');
 Route::get('/register', [UserController::class, 'showRegister'])->name('register');
-
 Route::post('/login', [UserController::class, 'login']);
-
 Route::resource('users', UserController::class)->except(['showLogin', 'showRegister']);
 
 Route::middleware(['auth'])->group(function () {
@@ -51,7 +46,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/exams/{exam:slug}/results', [ExamController::class, 'results'])->name('exams.results');
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('/my-results', [ExamController::class, 'myResults'])->name('exams.results');
+    Route::get('/my-results', [ExamController::class, 'myResults'])->name('my-results');
 
     // منابع سوالات
     Route::resource('questions', QuestionController::class);
