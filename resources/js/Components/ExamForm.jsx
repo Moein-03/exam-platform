@@ -52,7 +52,7 @@ const ExamForm = ({ exam }) => {
      });
 
      return (
-          <Paper sx={{ p: 3 }}>
+          <Paper sx={{ p: 3, direction: 'rtl' }}>
                <Typography variant="h5" gutterBottom>
                {isEditing ? 'ویرایش آزمون' : 'آزمون جدید'}
                </Typography>
