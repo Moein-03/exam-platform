@@ -2,7 +2,7 @@
      <div id="app"></div>
 
      <script>
-          window.pageName = 'ExamsEdit';
+          window.pageName = 'EditExam';
           window.pageProps = @json([
                'exams' => $exams,
                'user'  => auth()->user()

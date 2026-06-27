@@ -10,6 +10,13 @@ import Login from './Pages/Login';
 import Register from './Pages/Register';
 import ReportsIndex from './Pages/ReportsIndex';
 
+import CreateExam from './Pages/Exams/CreateExam';
+
+import ExamIndex from './Pages/Exams/ExamsIndex';
+//import ExamResults from './Pages/Exams/ExamResults';
+import ShowExam from './Pages/Exams/ShowExam';
+import TakeExam from './Pages/Exams/TakeExam';
+
 import '../css/app.css';
 
 
@@ -22,7 +29,12 @@ const components = {
      Login,
      Register,
      Dashboard,
-     ReportsIndex
+     ReportsIndex,
+     CreateExam,
+     ExamIndex,
+     //ExamResults,
+     ShowExam,
+     TakeExam
 };
 
 const pageName = window.pageName || 'HomePage';
