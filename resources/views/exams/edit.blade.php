@@ -14,7 +14,7 @@
 
      <script>
           window.pageName = 'EditExam';
-          window.pageProps = @json($pageProps);
+          window.pageProps = @json($pageProps ?? []);
      </script>
 </body>
 </html>

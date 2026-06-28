@@ -71,7 +71,7 @@ class QuestionController extends Controller
         $user = auth()->user();
         if ($user->isTeacher() && $exam->created_by == $user->id) {
             $pageProps = [
-                'questions' => $questions,
+                'question' => $question,
                 'auth' => ['user' => $user]
             ];
             return view('questions.show', ['pageProps' => $pageProps]);
@@ -87,7 +87,7 @@ class QuestionController extends Controller
         $user = auth()->user();
         if ($user->isTeacher() && $exam->created_by == $user->id) {
             $pageProps = [
-                'questions' => $questions,
+                'question' => $question,
                 'auth' => ['user' => $user]
             ];
             return view('questions.edit', ['pageProps' => $pageProps]);

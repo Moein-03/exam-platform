@@ -14,7 +14,7 @@
 
      <script>
           window.pageName = 'QuestionsIndex';
-          window.pageProps = @json($pageProps);
+          window.pageProps = @json($pageProps ?? []);
      </script>
 </body>
 </html>

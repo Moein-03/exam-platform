@@ -57,7 +57,7 @@
 
      <script>
           window.pageName = 'manage_questions';
-          window.pageProps = @json($pageProps);
+          window.pageProps = @json($pageProps ?? []);
      </script>
 </body>
 </html>

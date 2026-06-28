@@ -77,7 +77,7 @@
 
      <script>
           window.pageName = 'results';
-          window.pageProps = @json($pageProps);
+          window.pageProps = @json($pageProps ?? []);
      </script>
 </body>
 </html>

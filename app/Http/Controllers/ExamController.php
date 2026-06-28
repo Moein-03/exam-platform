@@ -75,7 +75,7 @@ class ExamController extends Controller
         $user = auth()->user();
         if ($user->isTeacher() && $exam->created_by == $user->id || $exam->status === 'فعال') {
             $pageProps = [
-                'exams' => $exams,
+                'exam' => $exam,
                 'auth' => ['user' => $user]
             ];
             return view('exams.show', ['pageProps' => $pageProps]);
@@ -90,7 +90,7 @@ class ExamController extends Controller
         $user = auth()->user();
         if ($user->isTeacher() && $exam->created_by == $user->id) {
             $pageProps = [
-                'exams' => $exams,
+                'exam' => $exam,
                 'auth' => ['user' => $user]
             ];
             return view('exams.edit', ['pageProps' => $pageProps]);
@@ -135,7 +135,7 @@ class ExamController extends Controller
 
         if ($user->isTeacher() && $exam->created_by == $user->id) {
             $pageProps = [
-                'exams' => $exams,
+                'exam' => $exam,
                 'questions' => $questions,
                 'selectedQuestions' => $selectedQuestions,
                 'auth' => ['user' => $user]
@@ -183,7 +183,7 @@ class ExamController extends Controller
 
         $questions = $exam->questions()->orderBy('order')->get();
         $pageProps = [
-            'exams' => $exams,
+            'exam' => $exam,
             'questions' => $questions,
             'auth' => ['user' => $user]
         ];
@@ -242,7 +242,7 @@ class ExamController extends Controller
         $answers = Answer::where('exam_id', $exam->id)->where('user_id', $user->id)->with('question')->get();
 
         $pageProps = [
-            'exams' => $exams,
+            'exam' => $exam,
             'answers' => $answers,
             'examUser' => $examUser,
             'auth' => ['user' => $user]

@@ -14,7 +14,7 @@
 
      <script>
           window.pageName = 'QuestionsShow';
-          window.pageProps = @json($pageProps);
+          window.pageProps = @json($pageProps ?? []);
      </script>
 </body>
 </html>
