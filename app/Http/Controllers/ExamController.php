@@ -38,15 +38,18 @@ class ExamController extends Controller
     {
         $this->authorizeTeacher();
         $user = auth()->user();
-        $pageProps = [
-            'auth' => ['user' => $user]
-        ];
-        return view('exams.create', ['pageProps' => $pageProps]);
+        if ($user->isTeacher()) {
+            $pageProps = [
+                'auth' => ['user' => $user]
+            ];
+            return view('exams.create', ['pageProps' => $pageProps]);
+        }
     }
 
     public function store(Request $request)
     {
         $this->authorizeTeacher();
+        $user = auth()->user();
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -65,22 +68,21 @@ class ExamController extends Controller
         $validated['created_by'] = auth()->id();
         $validated['status'] = 'پیش‌نویس';
 
-        $exam = Exam::create($validated);
-        return redirect()->route('exams.show', $exam->slug)->with('success', 'آزمون با موفقیت ساخته شد.');
+        if ($user->isTeacher()) {
+            $exam = Exam::create($validated);
+            return redirect()->route('exams.show', $exam->slug)->with('success', 'آزمون با موفقیت ساخته شد.');
+        }
     }
 
     public function show($slug)
     {
         $exam = Exam::where('slug', $slug)->firstOrFail();
         $user = auth()->user();
-        if ($user->isTeacher() && $exam->created_by == $user->id || $exam->status === 'فعال') {
-            $pageProps = [
-                'exam' => $exam,
-                'auth' => ['user' => $user]
-            ];
-            return view('exams.show', ['pageProps' => $pageProps]);
-        }
-
+        $pageProps = [
+            'exam' => $exam,
+            'auth' => ['user' => $user]
+        ];
+        return view('exams.show', ['pageProps' => $pageProps]);
         abort(404, 'آزمون یافت نشد.');
     }
 
@@ -100,6 +102,7 @@ class ExamController extends Controller
     public function update(Request $request, Exam $exam)
     {
         $this->authorizeOwner($exam);
+        $user = auth()->user();
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -115,15 +118,20 @@ class ExamController extends Controller
             'status' => 'in:پیش‌نویس,فعال,بسته شده',
         ]);
 
-        $exam->update($validated);
-        return redirect()->route('exams.show', $exam->slug)->with('success', 'آزمون به روز شد.');
+        if ($user->isTeacher() && $exam->created_by == $user->id) {
+            $exam->update($validated);
+            return redirect()->route('exams.show', $exam->slug)->with('success', 'آزمون به روز شد.');
+        }
     }
 
     public function destroy(Exam $exam)
     {
         $this->authorizeOwner($exam);
-        $exam->delete();
-        return redirect()->route('exams.index')->with('success', 'آزمون حذف شد.');
+        $user = auth()->user();
+        if ($user->isTeacher() && $exam->created_by == $user->id) {
+            $exam->delete();
+            return redirect()->route('exams.index')->with('success', 'آزمون حذف شد.');
+        }
     }
 
     public function manageQuestions(Exam $exam)
@@ -147,13 +155,16 @@ class ExamController extends Controller
     public function attachQuestions(Request $request, Exam $exam)
     {
         $this->authorizeOwner($exam);
+        $user = auth()->user();
         $request->validate([
             'questions' => 'required|array',
             'questions.*' => 'exists:questions,id'
         ]);
 
-        $exam->questions()->sync($request->questions);
-        return redirect()->route('exams.show', $exam->slug)->with('success', 'سوالات با موفقیت به آزمون اضافه شد.');
+        if ($user->isTeacher() && $exam->created_by == $user->id) {
+            $exam->questions()->sync($request->questions);
+            return redirect()->route('exams.show', $exam->slug)->with('success', 'سوالات با موفقیت به آزمون اضافه شد.');
+        }
     }
 
     public function start(Exam $exam)
@@ -252,7 +263,7 @@ class ExamController extends Controller
 
     private function authorizeTeacher()
     {
-        if (!auth()->user()->isTeacher()) abort(403, 'فقط معلم‌ها مجاز هستند.');
+        if (!auth()->user()->isTeacher()) abort(403, 'فقط استادان مجاز هستند.');
     }
 
     private function authorizeOwner(Exam $exam)

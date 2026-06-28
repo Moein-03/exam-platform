@@ -14,11 +14,11 @@ class QuestionController extends Controller
     {
         $this->authorizeTeacher();
         $user = auth()->user();
-        $questions = Question::where('created_by', auth()->id())
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        if ($user->isTeacher()) {
+            $questions = Question::where('created_by', auth()->id())
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
 
-        if ($user->isTeacher() && $exam->created_by == $user->id) {
             $pageProps = [
                 'questions' => $questions,
                 'auth' => ['user' => $user]
@@ -34,7 +34,7 @@ class QuestionController extends Controller
     {
         $this->authorizeTeacher();
         $user = auth()->user();
-        if ($user->isTeacher() && $exam->created_by == $user->id) {
+        if ($user->isTeacher()) {
             $pageProps = ['auth' => ['user' => $user]];
             return view('questions.create', ['pageProps' => $pageProps]);
         }
@@ -46,6 +46,7 @@ class QuestionController extends Controller
     public function store(Request $request)
     {
         $this->authorizeTeacher();
+        $user = auth()->user();
         $validated = $request->validate([
             'text' => 'required|string',
             'type' => 'required|in:multiple_choice,true_false,essay',
@@ -56,10 +57,12 @@ class QuestionController extends Controller
         ]);
 
         $validated['created_by'] = auth()->id();
-        Question::create($validated);
+        if ($user->isTeacher()) {
+            Question::create($validated);
 
-        return redirect()->route('questions.index')
-            ->with('success', 'سوال با موفقیت ایجاد شد.');
+            return redirect()->route('questions.index')
+                ->with('success', 'سوال با موفقیت ایجاد شد.');
+        }
     }
 
     /**
@@ -69,7 +72,7 @@ class QuestionController extends Controller
     {
         $this->authorizeOwner($question);
         $user = auth()->user();
-        if ($user->isTeacher() && $exam->created_by == $user->id) {
+        if ($user->isTeacher() && $question->created_by == $user->id) {
             $pageProps = [
                 'question' => $question,
                 'auth' => ['user' => $user]
@@ -85,7 +88,7 @@ class QuestionController extends Controller
     {
         $this->authorizeOwner($question);
         $user = auth()->user();
-        if ($user->isTeacher() && $exam->created_by == $user->id) {
+        if ($user->isTeacher() && $question->created_by == $user->id) {
             $pageProps = [
                 'question' => $question,
                 'auth' => ['user' => $user]
@@ -100,6 +103,7 @@ class QuestionController extends Controller
     public function update(Request $request, Question $question)
     {
         $this->authorizeOwner($question);
+        $user = auth()->user();
         $validated = $request->validate([
             'text' => 'required|string',
             'type' => 'required|in:multiple_choice,true_false,essay',
@@ -109,10 +113,12 @@ class QuestionController extends Controller
             'explanation' => 'nullable|string',
         ]);
 
-        $question->update($validated);
+        if ($user->isTeacher() && $question->created_by == $user->id) {
+            $question->update($validated);
 
-        return redirect()->route('questions.index')
-            ->with('success', 'سوال به روز شد.');
+            return redirect()->route('questions.index')
+                ->with('success', 'سوال به روز شد.');
+        }
     }
 
     /**
@@ -121,10 +127,13 @@ class QuestionController extends Controller
     public function destroy(Question $question)
     {
         $this->authorizeOwner($question);
-        $question->delete();
+        $user = auth()->user();
+        if ($user->isTeacher() && $question->created_by == $user->id) {
+            $question->delete();
 
-        return redirect()->route('questions.index')
-            ->with('success', 'سوال حذف شد.');
+            return redirect()->route('questions.index')
+                ->with('success', 'سوال حذف شد.');
+        }
     }
 
     private function authorizeTeacher()
