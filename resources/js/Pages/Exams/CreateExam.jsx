@@ -1,10 +1,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExamForm from '@/Components/ExamForm';
 
-const CreateExam = () => {
+const CreateExam = ({auth}) => {
      return (
-          <AuthenticatedLayout header="ایجاد آزمون جدید">
-               <ExamForm />
+          <AuthenticatedLayout user={auth.user} header="ایجاد آزمون جدید">
+               <ExamForm/>
           </AuthenticatedLayout>
      );
 }
