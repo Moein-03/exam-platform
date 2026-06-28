@@ -15,11 +15,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 const ExamsIndex = ({ isTeacher, exams, auth }) => {
     const [page, setPage] = useState(exams.current_page);
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (slug) => {
         if (!confirm('آیا از حذف این آزمون اطمینان دارید؟')) return;
 
         try {
-            await axios.delete(`/exams/${id}`);
+            await axios.delete(`/exams/${slug}`);
             toast.success('آزمون حذف شد');
             window.location.reload();
         } catch (error) {
@@ -49,7 +49,7 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
             </Box>
 
             <TableContainer component={Paper}>
-                <Table>
+                <Table sx={{ direction: 'rtl' }}>
                     <TableHead>
                         <TableRow>
                             <TableCell>عنوان</TableCell>
@@ -94,7 +94,7 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
                                             <Button
                                                 size="small"
                                                 startIcon={<DeleteIcon />}
-                                                onClick={() => handleDelete(exam.id)}
+                                                onClick={() => handleDelete(exam.slug)}
                                             >
                                                 حذف
                                             </Button>

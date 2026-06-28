@@ -70,6 +70,9 @@ class ExamController extends Controller
 
         if ($user->isTeacher()) {
             $exam = Exam::create($validated);
+            if ($request->expectsJson()) {
+                return response()->json(['slug' => $exam->slug], 201);
+            }
             return redirect()->route('exams.show', $exam->slug)->with('success', 'آزمون با موفقیت ساخته شد.');
         }
     }
@@ -120,11 +123,14 @@ class ExamController extends Controller
 
         if ($user->isTeacher() && $exam->created_by == $user->id) {
             $exam->update($validated);
+            if ($request->expectsJson()) {
+                return response()->json(['slug' => $exam->slug], 200);
+            }
             return redirect()->route('exams.show', $exam->slug)->with('success', 'آزمون به روز شد.');
         }
     }
 
-    public function destroy(Exam $exam)
+    /* public function destroy(Exam $exam)
     {
         $this->authorizeOwner($exam);
         $user = auth()->user();
@@ -132,7 +138,22 @@ class ExamController extends Controller
             $exam->delete();
             return redirect()->route('exams.index')->with('success', 'آزمون حذف شد.');
         }
-    }
+    } */
+
+    public function destroy($slug)
+    {
+        $exam = Exam::where('slug', $slug)->firstOrFail();
+        $this->authorizeOwner($exam);
+        $user = auth()->user();
+        if ($user->isTeacher() && $exam->created_by == $user->id) {
+            $exam->delete();
+            
+            if (request()->expectsJson()) {
+                return response()->json(['message' => 'آزمون حذف شد']);
+            }
+            return redirect()->route('exams.index')->with('success', 'آزمون حذف شد.');
+        }
+    }  
 
     public function manageQuestions(Exam $exam)
     {
