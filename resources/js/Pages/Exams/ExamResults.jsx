@@ -3,7 +3,7 @@ import * as Plot from '@observablehq/plot';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Box, Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip } from '@mui/material';
 
-const ExamResults = ({ auth, exam, answers, score }) => {
+const ExamResults = ({ isTeacher, auth, exam, answers, score }) => {
      const chartRef = useRef(null);
      const correctCount = answers.filter(a => a.is_correct).length;
      const incorrectCount = answers.length - correctCount;
@@ -60,8 +60,8 @@ const ExamResults = ({ auth, exam, answers, score }) => {
      }, [correctCount, incorrectCount, total, correctPercent]);
 
      return (
-          <AuthenticatedLayout user={auth.user} header={`نتیجه آزمون ${exam.title}`}>
-               <Paper sx={{ p: 3 }}>
+          <AuthenticatedLayout user={auth.user} header={`نتیجه آزمون ${exam.title}`} isTeacher={isTeacher}>
+               <Paper sx={{ p: 3, direction: 'rtl' }}>
                     <Typography variant="h5" gutterBottom>
                          نمره شما: {score} از {exam.total_score}
                     </Typography>

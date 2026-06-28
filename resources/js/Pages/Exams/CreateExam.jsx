@@ -1,9 +1,9 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExamForm from '@/Components/ExamForm';
 
-const CreateExam = ({auth}) => {
+const CreateExam = ({isTeacher, auth}) => {
      return (
-          <AuthenticatedLayout user={auth.user} header="ایجاد آزمون جدید">
+          <AuthenticatedLayout user={auth.user} header="ایجاد آزمون جدید" isTeacher={isTeacher}>
                <ExamForm/>
           </AuthenticatedLayout>
      );

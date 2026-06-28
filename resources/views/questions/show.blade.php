@@ -13,7 +13,7 @@
      <div id="app"></div>
 
      <script>
-          window.pageName = 'QuestionsShow';
+          window.pageName = 'ShowQuestion';
           window.pageProps = @json($pageProps ?? []);
      </script>
 </body>

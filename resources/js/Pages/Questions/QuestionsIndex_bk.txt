@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import {
     Box, Button, Table, TableBody, TableCell,
     TableContainer, TableHead, TableRow, Paper,
@@ -12,9 +12,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { toast } from 'react-toastify';
 
-const QuestionsIndex = ({ isTeacher, auth, questions: initialQuestions }) => {
-    const [questions, setQuestions] = useState(initialQuestions);
-    const [page, setPage] = useState(initialQuestions.current_page);
+const QuestionsIndex = ({ auth, questions }) => {
+    const [page, setPage] = useState(questions.current_page);
 
     const handleDelete = async (id) => {
         if (!confirm('آیا از حذف این سوال اطمینان دارید؟')) return;
@@ -22,22 +21,7 @@ const QuestionsIndex = ({ isTeacher, auth, questions: initialQuestions }) => {
         try {
             await axios.delete(`/questions/${id}`);
             toast.success('سوال حذف شد');
-            
-            setQuestions(prev => ({
-                ...prev,
-                data: prev.data.filter(q => q.id !== id),
-                total: prev.total - 1,
-                from: prev.from,
-                to: prev.to - 1,
-                current_page: prev.current_page,
-                last_page: prev.last_page,
-                per_page: prev.per_page,
-                path: prev.path,
-                first_page_url: prev.first_page_url,
-                last_page_url: prev.last_page_url,
-                next_page_url: prev.next_page_url,
-                prev_page_url: prev.prev_page_url,
-            }));
+            window.location.reload();
         } catch (error) {
             toast.error('خطا در حذف سوال');
             console.error(error);
@@ -59,7 +43,7 @@ const QuestionsIndex = ({ isTeacher, auth, questions: initialQuestions }) => {
     };
 
     return (
-        <AuthenticatedLayout user={auth.user} header="مدیریت سوالات" isTeacher={isTeacher}>
+        <AuthenticatedLayout user={auth.user} header="مدیریت سوالات">
             <Box sx={{ mb: 2, direction: 'rtl' }}>
                 <Button
                     variant="contained"

@@ -13,7 +13,13 @@ import CreateExam from './Pages/Exams/CreateExam';
 import ExamsIndex from './Pages/Exams/ExamsIndex';
 //import ExamResults from './Pages/Exams/ExamResults';
 import ShowExam from './Pages/Exams/ShowExam';
+import EditExam from './Pages/Exams/EditExam';
 import TakeExam from './Pages/Exams/TakeExam';
+
+import QuestionsIndex from './Pages/Questions/QuestionsIndex';
+import CreateQuestion from './Pages/Questions/CreateQuestion';
+import EditQuestion from './Pages/Questions/EditQuestion';
+
 
 import '../css/app.css';
 
@@ -32,7 +38,11 @@ const components = {
      ExamsIndex,
      //ExamResults,
      ShowExam,
-     TakeExam
+     EditExam,
+     TakeExam,
+     QuestionsIndex,
+     CreateQuestion,
+     EditQuestion
 };
 
 const pageName = window.pageName || 'HomePage';

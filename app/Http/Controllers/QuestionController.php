@@ -20,6 +20,7 @@ class QuestionController extends Controller
                 ->paginate(10);
 
             $pageProps = [
+                'isTeacher' => true,
                 'questions' => $questions,
                 'auth' => ['user' => $user]
             ];
@@ -35,7 +36,10 @@ class QuestionController extends Controller
         $this->authorizeTeacher();
         $user = auth()->user();
         if ($user->isTeacher()) {
-            $pageProps = ['auth' => ['user' => $user]];
+            $pageProps = [
+                'isTeacher' => true,
+                'auth' => ['user' => $user]
+            ];
             return view('questions.create', ['pageProps' => $pageProps]);
         }
     }
@@ -74,6 +78,7 @@ class QuestionController extends Controller
         $user = auth()->user();
         if ($user->isTeacher() && $question->created_by == $user->id) {
             $pageProps = [
+                'isTeacher' => true,
                 'question' => $question,
                 'auth' => ['user' => $user]
             ];
@@ -90,6 +95,7 @@ class QuestionController extends Controller
         $user = auth()->user();
         if ($user->isTeacher() && $question->created_by == $user->id) {
             $pageProps = [
+                'isTeacher' => true,
                 'question' => $question,
                 'auth' => ['user' => $user]
             ];
@@ -131,8 +137,11 @@ class QuestionController extends Controller
         if ($user->isTeacher() && $question->created_by == $user->id) {
             $question->delete();
 
-            return redirect()->route('questions.index')
-                ->with('success', 'سوال حذف شد.');
+            if (request()->expectsJson()) {
+                return response()->json(['message' => 'سوال حذف شد']);
+            }
+
+            return redirect()->route('questions.index')->with('success', 'سوال حذف شد.');
         }
     }
 

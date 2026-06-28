@@ -1,40 +1,183 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Box, Paper, Typography, Divider, Button, Grid } from '@mui/material';
-import { Link } from '@inertiajs/react';
-// import Timer from '@/Components/Timer';
+import {
+    Box, Paper, Typography, Grid, Chip, Button,
+    Divider, CircularProgress, Alert
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import { toast } from 'react-toastify';
 
-const ShowExam = ({ exam, auth }) => {
-     const isOwner = auth.user.role === 'teacher' && exam.created_by === auth.user.id;
-     const canTake = auth.user.role === 'student' && exam.status === 'فعال';
+const ShowExam = ({ auth, exam: initialExam }) => {
+    const [exam, setExam] = useState(initialExam || null);
+    const [loading, setLoading] = useState(!initialExam);
+    const [error, setError] = useState(null);
 
-     return (
-          <AuthenticatedLayout user={auth.user} header={exam.title}>
-               <Paper sx={{ p: 3 }}>
-                    <Typography variant="h4" gutterBottom>{exam.title}</Typography>
-                    <Typography variant="body1" paragraph>{exam.description}</Typography>
-                    <Divider sx={{ my: 2 }} />
+    useEffect(() => {
+        if (!initialExam) {
+            // اگر exam از props نیامده، از آدرس بگیر
+            const slug = window.location.pathname.split('/').pop();
+            axios.get(`/exams/${slug}`)
+                .then(res => {
+                    setExam(res.data);
+                    setLoading(false);
+                })
+                .catch(err => {
+                    setError('آزمون پیدا نشد');
+                    setLoading(false);
+                });
+        }
+    }, [initialExam]);
+
+    const handleDelete = async () => {
+        if (!confirm('آیا از حذف این آزمون اطمینان دارید؟')) return;
+        try {
+            await axios.delete(`/exams/${exam.slug}`);
+            toast.success('آزمون حذف شد');
+            window.location.href = '/exams';
+        } catch (error) {
+            toast.error('خطا در حذف آزمون');
+        }
+    };
+
+    if (loading) {
+        return (
+            <AuthenticatedLayout user={auth.user} header="بارگذاری...">
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
+                    <CircularProgress />
+                </Box>
+            </AuthenticatedLayout>
+        );
+    }
+
+    if (error || !exam) {
+        return (
+            <AuthenticatedLayout user={auth.user} header="خطا">
+                <Alert severity="error">{error || 'آزمون یافت نشد'}</Alert>
+            </AuthenticatedLayout>
+        );
+    }
+
+    const isOwner = auth.user.isTeacher && exam.created_by === auth.user.id;
+
+    return (
+        <AuthenticatedLayout user={auth.user} header={`نمایش آزمون: ${exam.title}`}>
+            <Box sx={{ p: 3, direction: 'rtl' }}>
+                <Paper sx={{ p: 3 }}>
                     <Grid container spacing={2}>
-                         <Grid item xs={6}><strong>تاریخ برگزاری:</strong> {exam.exam_date}</Grid>
-                         <Grid item xs={6}><strong>زمان شروع:</strong> {exam.start_time}</Grid>
-                         <Grid item xs={6}><strong>مدت:</strong> {exam.duration_min} دقیقه</Grid>
-                         <Grid item xs={6}><strong>تعداد سوالات:</strong> {exam.question_count}</Grid>
-                         <Grid item xs={6}><strong>نمره کل:</strong> {exam.total_score}</Grid>
-                         <Grid item xs={6}><strong>وضعیت:</strong> {exam.status}</Grid>
+                        <Grid item xs={12}>
+                            <Typography variant="h4" gutterBottom>
+                                {exam.title}
+                            </Typography>
+                            <Chip
+                                label={exam.status}
+                                color={exam.status === 'فعال' ? 'success' : 'warning'}
+                                sx={{ mb: 2 }}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <Divider />
+                        </Grid>
+
+                        <Grid item xs={12} md={6}>
+                            <Typography variant="body1">
+                                <strong>توضیحات:</strong> {exam.description || 'ندارد'}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <Typography variant="body1">
+                                <strong>دسته‌بندی:</strong> {exam.category || 'عمومی'}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <Typography variant="body1">
+                                <strong>تاریخ برگزاری:</strong> {exam.exam_date}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <Typography variant="body1" sx={{direction: "ltr"}}>
+                                <strong>زمان شروع:</strong> {exam.start_time}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <Typography variant="body1">
+                                <strong>مدت زمان:</strong> {exam.duration_min} دقیقه
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <Typography variant="body1">
+                                <strong>تعداد سوالات:</strong> {exam.question_count}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <Typography variant="body1">
+                                <strong>نمره کل:</strong> {exam.total_score}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <Typography variant="body1">
+                                <strong>نحوه انتخاب سوالات:</strong>
+                                {exam.question_selection_type === 'manual' ? ' دستی' : ' تصادفی'}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <Divider />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                                {isOwner && (
+                                    <>
+                                        <Button
+                                            variant="contained"
+                                            startIcon={<EditIcon />}
+                                            href={`/exams/${exam.id}/edit`}
+                                        >
+                                            ویرایش آزمون
+                                        </Button>
+                                        <Button
+                                            variant="contained"
+                                            color="error"
+                                            startIcon={<DeleteIcon />}
+                                            onClick={handleDelete}
+                                        >
+                                            حذف آزمون
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            startIcon={<QuestionAnswerIcon />}
+                                            href={`/exams/${exam.slug}/manage-questions`}
+                                        >
+                                            مدیریت سوالات
+                                        </Button>
+                                    </>
+                                )}
+                                {!auth.user.isTeacher && exam.status === 'فعال' && (
+                                    <Button
+                                        variant="contained"
+                                        color="success"
+                                        href={`/exams/${exam.slug}/start`}
+                                    >
+                                        شروع آزمون
+                                    </Button>
+                                )}
+                                <Button
+                                    variant="outlined"
+                                    href="/exams"
+                                >
+                                    بازگشت به لیست
+                                </Button>
+                            </Box>
+                        </Grid>
                     </Grid>
-                    <Box sx={{ mt: 3 }}>
-                         {isOwner && (
-                              <>
-                                   <Button component={Link} href={route('exams.edit', exam.id)} variant="outlined" sx={{ ml: 2 }}>ویرایش</Button>
-                                   <Button component={Link} href={route('exams.manage_questions', exam.slug)} variant="outlined">مدیریت سوالات</Button>
-                              </>
-                         )}
-                         {canTake && (
-                              <Button component={Link} href={route('exams.start', exam.slug)} variant="contained" color="success">شروع آزمون</Button>
-                         )}
-                    </Box>
-               </Paper>
-          </AuthenticatedLayout>
-     );
-}
+                </Paper>
+            </Box>
+        </AuthenticatedLayout>
+    );
+};
 
 export default ShowExam;
