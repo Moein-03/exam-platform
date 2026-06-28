@@ -4,7 +4,7 @@
      <meta charset="UTF-8">
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
      <meta name="csrf-token" content="{{ csrf_token() }}">
-     <title>بانک سوالات | پلتفرم آزمون</title>
+     <title>متصل کردن سوالات به آزمون | پلتفرم آزمون</title>
      
      @viteReactRefresh
      @vite(['resources/js/app.jsx'])
@@ -13,8 +13,11 @@
      <div id="app"></div>
 
      <script>
-          window.pageName = 'QuestionsIndex';
-          window.pageProps = @json($pageProps);
+          window.pageName = 'attach_questions';
+          window.pageProps = @json([
+               'exams' => $exams,
+               'user'  => auth()->user()
+          ]);
      </script>
 </body>
 </html>

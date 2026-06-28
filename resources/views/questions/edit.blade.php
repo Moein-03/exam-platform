@@ -14,10 +14,7 @@
 
      <script>
           window.pageName = 'QuestionsEdit';
-          window.pageProps = @json([
-               'questions' => $questions,
-               'user'  => auth()->user()
-          ]);
+          window.pageProps = @json($pageProps);
      </script>
 </body>
 </html>

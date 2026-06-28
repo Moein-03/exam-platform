@@ -14,14 +14,7 @@
 
      <script>
           window.pageName = 'ReportsIndex';
-          window.pageProps = @json([
-               'exams' => $exams,
-               'totalExams' => $totalExams,
-               'totalStudents' => $totalStudents,
-               'avgScore' => $avgScore,
-               'difficultQuestions' => $difficultQuestions,
-               'user' => auth()->user()
-          ]);
+          window.pageProps = @json($pageProps);
      </script>
 </body>
 </html>

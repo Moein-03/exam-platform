@@ -34,6 +34,15 @@ class ReportController extends Controller
             ->limit(5)
             ->get();
 
-        return view('reports.index', compact('exams', 'totalExams', 'totalStudents', 'avgScore', 'difficultQuestions'));
+        $pageProps = [
+            'exams' => $exams,
+            'totalExams' => $totalExams,
+            'totalStudents' => $totalStudents,
+            'avgScore' => $avgScore,
+            'difficultQuestions' => $difficultQuestions,
+            'auth' => ['user' => $user]
+        ];
+
+        return view('reports.index', ['pageProps' => $pageProps]);
     }
 }

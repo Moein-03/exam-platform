@@ -13,11 +13,18 @@ class QuestionController extends Controller
     public function index()
     {
         $this->authorizeTeacher();
+        $user = auth()->user();
         $questions = Question::where('created_by', auth()->id())
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('questions.index', compact('questions'));
+        if ($user->isTeacher() && $exam->created_by == $user->id) {
+            $pageProps = [
+                'questions' => $questions,
+                'auth' => ['user' => $user]
+            ];
+            return view('questions.index', ['pageProps' => $pageProps]);
+        }
     }
 
     /**
@@ -26,7 +33,11 @@ class QuestionController extends Controller
     public function create()
     {
         $this->authorizeTeacher();
-        return view('questions.create');
+        $user = auth()->user();
+        if ($user->isTeacher() && $exam->created_by == $user->id) {
+            $pageProps = ['auth' => ['user' => $user]];
+            return view('questions.create', ['pageProps' => $pageProps]);
+        }
     }
 
     /**
@@ -57,7 +68,14 @@ class QuestionController extends Controller
     public function show(Question $question)
     {
         $this->authorizeOwner($question);
-        return view('questions.show', compact('question'));
+        $user = auth()->user();
+        if ($user->isTeacher() && $exam->created_by == $user->id) {
+            $pageProps = [
+                'questions' => $questions,
+                'auth' => ['user' => $user]
+            ];
+            return view('questions.show', ['pageProps' => $pageProps]);
+        }
     }
 
     /**
@@ -66,7 +84,14 @@ class QuestionController extends Controller
     public function edit(Question $question)
     {
         $this->authorizeOwner($question);
-        return view('questions.edit', compact('question'));
+        $user = auth()->user();
+        if ($user->isTeacher() && $exam->created_by == $user->id) {
+            $pageProps = [
+                'questions' => $questions,
+                'auth' => ['user' => $user]
+            ];
+            return view('questions.edit', ['pageProps' => $pageProps]);
+        }
     }
 
     /**

@@ -14,10 +14,7 @@
 
      <script>
           window.pageName = 'ShowExam';
-          window.pageProps = @json([
-               'exams' => $exams,
-               'user'  => auth()->user()
-          ]);
+          window.pageProps = @json($pageProps);
      </script>
 </body>
 </html>

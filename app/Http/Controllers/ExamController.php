@@ -37,7 +37,11 @@ class ExamController extends Controller
     public function create()
     {
         $this->authorizeTeacher();
-        return view('exams.create');
+        $user = auth()->user();
+        $pageProps = [
+            'auth' => ['user' => $user]
+        ];
+        return view('exams.create', ['pageProps' => $pageProps]);
     }
 
     public function store(Request $request)
@@ -69,9 +73,12 @@ class ExamController extends Controller
     {
         $exam = Exam::where('slug', $slug)->firstOrFail();
         $user = auth()->user();
-
         if ($user->isTeacher() && $exam->created_by == $user->id || $exam->status === 'فعال') {
-            return view('exams.show', compact('exam'));
+            $pageProps = [
+                'exams' => $exams,
+                'auth' => ['user' => $user]
+            ];
+            return view('exams.show', ['pageProps' => $pageProps]);
         }
 
         abort(404, 'آزمون یافت نشد.');
@@ -80,7 +87,14 @@ class ExamController extends Controller
     public function edit(Exam $exam)
     {
         $this->authorizeOwner($exam);
-        return view('exams.edit', compact('exam'));
+        $user = auth()->user();
+        if ($user->isTeacher() && $exam->created_by == $user->id) {
+            $pageProps = [
+                'exams' => $exams,
+                'auth' => ['user' => $user]
+            ];
+            return view('exams.edit', ['pageProps' => $pageProps]);
+        }
     }
 
     public function update(Request $request, Exam $exam)
@@ -115,10 +129,19 @@ class ExamController extends Controller
     public function manageQuestions(Exam $exam)
     {
         $this->authorizeOwner($exam);
+        $user = auth()->user();
         $questions = Question::where('created_by', auth()->id())->get();
         $selectedQuestions = $exam->questions()->pluck('question_id')->toArray();
 
-        return view('exams.manage_questions', compact('exam', 'questions', 'selectedQuestions'));
+        if ($user->isTeacher() && $exam->created_by == $user->id) {
+            $pageProps = [
+                'exams' => $exams,
+                'questions' => $questions,
+                'selectedQuestions' => $selectedQuestions,
+                'auth' => ['user' => $user]
+            ];
+            return view('exams.manage_questions', ['pageProps' => $pageProps]);
+        }
     }
 
     public function attachQuestions(Request $request, Exam $exam)
@@ -159,7 +182,12 @@ class ExamController extends Controller
         }
 
         $questions = $exam->questions()->orderBy('order')->get();
-        return view('exams.take', compact('exam', 'questions'));
+        $pageProps = [
+            'exams' => $exams,
+            'questions' => $questions,
+            'auth' => ['user' => $user]
+        ];
+        return view('exams.take', ['pageProps' => $pageProps]);
     }
 
     public function submit(Request $request, Exam $exam)
@@ -213,7 +241,13 @@ class ExamController extends Controller
         }
         $answers = Answer::where('exam_id', $exam->id)->where('user_id', $user->id)->with('question')->get();
 
-        return view('exams.results', compact('exam', 'answers', 'examUser'));
+        $pageProps = [
+            'exams' => $exams,
+            'answers' => $answers,
+            'examUser' => $examUser,
+            'auth' => ['user' => $user]
+        ];
+        return view('exams.results', ['pageProps' => $pageProps]);
     }
 
     private function authorizeTeacher()

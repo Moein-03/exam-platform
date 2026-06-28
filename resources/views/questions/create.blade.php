@@ -14,9 +14,7 @@
 
      <script>
           window.pageName = 'QuestionsCreate';
-          window.pageProps = @json([
-               'user' => auth()->user()
-          ]);
+          window.pageProps = @json($pageProps);
      </script>
 </body>
 </html>
