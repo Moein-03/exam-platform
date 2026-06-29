@@ -11,18 +11,27 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const HomePage = ({ isTeacher, auth }) => {
-    /* const isAuthenticated = !!user;
-    const isTeacher = isAuthenticated && user.role === 'teacher';
-    const isStudent = isAuthenticated && user.role === 'student'; */
-
+    const user = auth?.user;
+   
     const handleLogout = async () => {
         try {
             await axios.get('/sanctum/csrf-cookie', { withCredentials: true });
-            await axios.post('/logout', {}, { withCredentials: true });
+            
+            await axios.post('/logout', {}, {
+                withCredentials: true,
+                headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
             toast.success('با موفقیت خارج شدید');
-            setTimeout(() => window.location.href = '/login', 800);
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 800);
         } catch (err) {
-            toast.error('خطا در خروج');
+            console.error(err);
+            toast.error('خطا در خروج از حساب');
         }
     };
 
@@ -50,29 +59,30 @@ const HomePage = ({ isTeacher, auth }) => {
         },
     ];
 
-    if (!isTeacher) {
-        cards.push({
-            title: 'نتایج من',
-            description: 'مشاهده نمرات و بازخورد آزمون‌های شرکت کرده',
-            icon: <AssignmentIcon fontSize="large" color="warning" />,
-            link: '/my-results',
-            linkText: 'مشاهده نتایج',
-        });
-    }
+    if (user) {
+        if (!isTeacher) {
+            cards.push({
+                title: 'نتایج من',
+                description: 'مشاهده نمرات و بازخورد آزمون‌های شرکت کرده',
+                icon: <AssignmentIcon fontSize="large" color="warning" />,
+                link: '/my-results',
+                linkText: 'مشاهده نتایج',
+            });
+        }
 
-    if (isTeacher) {
-        cards.push({
-            title: 'تحلیل و گزارش',
-            description: 'مشاهده آمار دقیق هر آزمون، سوالات پرخطا و میانگین نمرات',
-            icon: <AssignmentIcon fontSize="large" color="info" />,
-            link: '/reports',
-            linkText: 'مشاهده گزارش‌ها',
-        });
+        if (isTeacher) {
+            cards.push({
+                title: 'تحلیل و گزارش',
+                description: 'مشاهده آمار دقیق هر آزمون، سوالات پرخطا و میانگین نمرات',
+                icon: <AssignmentIcon fontSize="large" color="info" />,
+                link: '/reports',
+                linkText: 'مشاهده گزارش‌ها',
+            });
+        }
     }
 
     return (
         <Box sx={{ bgcolor: '#f5f7fa', minHeight: '100vh' }}>
-            {/* هدر اصلی */}
             <Box
                 sx={{
                     bgcolor: 'primary.main',
@@ -92,21 +102,21 @@ const HomePage = ({ isTeacher, auth }) => {
                         تجربه‌ای نوین در برگزاری و شرکت در آزمون‌های آنلاین با بازخورد هوشمند
                     </Typography>
 
-                    {auth ? (
+                    {user ? (
                         <Box sx={{ mt: 4, display: 'flex', alignItems: 'center', gap: 3 }}>
                             <Avatar sx={{ width: 56, height: 56, bgcolor: 'white', color: 'primary.main' }}>
-                                {auth.user.name?.[0]}
+                                {user?.name?.[0] || '?'}
                             </Avatar>
                             <Box>
-                                <Typography variant="h5">خوش آمدید، {auth.user.name}</Typography>
+                                <Typography variant="h5">خوش آمدید {isTeacher ? 'استاد گرامی' : 'دانشجوی عزیز'}، {user?.name}</Typography>
                                 <Typography variant="body1">
-                                    {isTeacher ? 'استاد' : 'دانشجو'} • {auth.user.email}
+                                    • {user?.email}
                                 </Typography>
                             </Box>
                             <Button
                                 variant="outlined"
                                 color="inherit"
-                                startIcon={<LogoutIcon />}
+                                startIcon={<LogoutIcon sx={{ marginLeft: '5px' }}/>}
                                 onClick={handleLogout}
                                 sx={{ ml: 'auto', borderColor: 'white', color: 'white' }}
                             >

@@ -9,21 +9,26 @@ class HomeController extends Controller
      public function index()
      {
           $user = auth()->user();
-          
-          if ($user->isTeacher()) {
-               $pageProps = [
-                    'isTeacher' => true,
-                    'auth' => ['user' => $user]
-               ];
+
+          if($user) {
+               if ($user->isTeacher()) {
+                    $pageProps = [
+                         'isTeacher' => true,
+                         'auth' => ['user' => $user]
+                    ];
+               } else {
+                    $pageProps = [
+                         'isTeacher' => false,
+                         'auth' => ['user' => $user]
+                    ];
+               }
           } else {
                $pageProps = [
                     'isTeacher' => false,
-                    'auth' => ['user' => $user]
+                    'auth' => ['user' => null]
                ];
           }
-          return view('app', ['pageProps' => $pageProps]);
-          /* return view('app', [
-               'user' => $user
-          ]); */
+
+          return view('home', ['pageProps' => $pageProps]);
      }
 }
