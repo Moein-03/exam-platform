@@ -10,8 +10,20 @@ class HomeController extends Controller
      {
           $user = auth()->user();
           
-          return view('app', [
+          if ($user->isTeacher()) {
+               $pageProps = [
+                    'isTeacher' => true,
+                    'auth' => ['user' => $user]
+               ];
+          } else {
+               $pageProps = [
+                    'isTeacher' => false,
+                    'auth' => ['user' => $user]
+               ];
+          }
+          return view('app', ['pageProps' => $pageProps]);
+          /* return view('app', [
                'user' => $user
-          ]);
+          ]); */
      }
 }

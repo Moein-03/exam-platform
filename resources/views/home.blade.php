@@ -13,11 +13,12 @@
 
     <script>
         window.pageName = 'HomePage';
-        window.pageProps = {
+        /* window.pageProps = {
             auth: {
                 user: {{ auth()->check() ? json_encode(auth()->user()->only('id', 'name', 'email', 'role')) : 'null' }}
             }
-        };
+        }; */
+        window.pageProps = @json($pageProps ?? []);
     </script>
 </body>
 </html>

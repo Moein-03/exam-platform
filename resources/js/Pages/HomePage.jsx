@@ -10,10 +10,10 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const HomePage = ({ user }) => {
-    const isAuthenticated = !!user;
+const HomePage = ({ isTeacher, auth }) => {
+    /* const isAuthenticated = !!user;
     const isTeacher = isAuthenticated && user.role === 'teacher';
-    const isStudent = isAuthenticated && user.role === 'student';
+    const isStudent = isAuthenticated && user.role === 'student'; */
 
     const handleLogout = async () => {
         try {
@@ -50,7 +50,7 @@ const HomePage = ({ user }) => {
         },
     ];
 
-    if (isStudent) {
+    if (!isTeacher) {
         cards.push({
             title: 'نتایج من',
             description: 'مشاهده نمرات و بازخورد آزمون‌های شرکت کرده',
@@ -92,15 +92,15 @@ const HomePage = ({ user }) => {
                         تجربه‌ای نوین در برگزاری و شرکت در آزمون‌های آنلاین با بازخورد هوشمند
                     </Typography>
 
-                    {isAuthenticated ? (
+                    {auth ? (
                         <Box sx={{ mt: 4, display: 'flex', alignItems: 'center', gap: 3 }}>
                             <Avatar sx={{ width: 56, height: 56, bgcolor: 'white', color: 'primary.main' }}>
-                                {user.name?.[0]}
+                                {auth.user.name?.[0]}
                             </Avatar>
                             <Box>
-                                <Typography variant="h5">خوش آمدید، {user.name}</Typography>
+                                <Typography variant="h5">خوش آمدید، {auth.user.name}</Typography>
                                 <Typography variant="body1">
-                                    {isTeacher ? 'استاد' : 'دانشجو'} • {user.email}
+                                    {isTeacher ? 'استاد' : 'دانشجو'} • {auth.user.email}
                                 </Typography>
                             </Box>
                             <Button
