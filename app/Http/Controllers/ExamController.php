@@ -102,6 +102,7 @@ class ExamController extends Controller
             ];
             return view('exams.edit', ['pageProps' => $pageProps]);
         }
+        abort(403, 'شما اجازه ویرایش این آزمون را ندارید.');
     }
 
     public function update(Request $request, Exam $exam)

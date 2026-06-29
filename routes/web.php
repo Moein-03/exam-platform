@@ -35,8 +35,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // منابع آزمون‌ها
-    Route::resource('exams', ExamController::class)->except(['show', 'create', 'destroy']);
+    Route::resource('exams', ExamController::class);
+    /* Route::resource('exams', ExamController::class)->except(['show', 'create', 'destroy', 'edit']);
     Route::get('/exams/create', [ExamController::class, 'create'])->name('exams.create');
+    Route::get('/exams/{exam}/edit', [ExamController::class, 'edit'])->name('exams.edit');
     Route::delete('/exams/{slug}', [ExamController::class, 'destroy'])->name('exams.destroy');
     Route::get('/exams/{exam:slug}', [ExamController::class, 'show'])->name('exams.show');
     Route::get('/exams/{exam:slug}/manage-questions', [ExamController::class, 'manageQuestions'])->name('exams.manage_questions');
@@ -44,7 +46,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/exams/{exam}/take', [ExamController::class, 'start'])->name('exams.take');
     Route::get('/exams/{exam:slug}/start', [ExamController::class, 'start'])->name('exams.start');
     Route::post('/exams/{exam:slug}/submit', [ExamController::class, 'submit'])->name('exams.submit');
-    Route::get('/exams/{exam:slug}/results', [ExamController::class, 'results'])->name('exams.results');
+    Route::get('/exams/{exam:slug}/results', [ExamController::class, 'results'])->name('exams.results'); */
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/my-results', [ExamController::class, 'myResults'])->name('my-results');

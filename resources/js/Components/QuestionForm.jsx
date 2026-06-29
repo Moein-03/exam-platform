@@ -201,6 +201,12 @@ const QuestionForm = ({ question }) => {
                             {isEditing ? 'به‌روزرسانی' : 'ایجاد سوال'}
                         </Button>
                     </Grid>
+                    <Button
+                        variant="outlined"
+                        href="/questions"
+                    >
+                        بازگشت به لیست
+                    </Button>
                 </Grid>
             </form>
         </Paper>

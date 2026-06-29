@@ -92,7 +92,7 @@ const ExamForm = ({ exam }) => {
                             type="date"
                             name="exam_date"
                             label="تاریخ برگزاری"
-                            slotProps={{ inputLabel: { shrink: true } }}  // جایگزین InputLabelProps
+                            slotProps={{ inputLabel: { shrink: true } }}
                             value={formik.values.exam_date}
                             onChange={formik.handleChange}
                             error={formik.touched.exam_date && Boolean(formik.errors.exam_date)}
@@ -190,6 +190,13 @@ const ExamForm = ({ exam }) => {
                             {isEditing ? 'به‌روزرسانی' : 'ایجاد آزمون'}
                         </Button>
                     </Grid>
+                    
+                    <Button
+                        variant="outlined"
+                        href="/exams"
+                    >
+                        بازگشت به لیست
+                    </Button>
                 </Grid>
             </form>
         </Paper>

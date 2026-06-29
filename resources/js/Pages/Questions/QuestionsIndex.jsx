@@ -94,14 +94,14 @@ const QuestionsIndex = ({ isTeacher, auth, questions: initialQuestions }) => {
                                 </TableCell>
                                 <TableCell>{q.score}</TableCell>
                                 <TableCell>
-                                    <Button
+                                    {/* <Button
                                         size="small"
                                         startIcon={<VisibilityIcon />}
                                         href={`/questions/${q.id}`}
                                         component="a"
                                     >
                                         مشاهده
-                                    </Button>
+                                    </Button> */}
                                     <Button
                                         size="small"
                                         startIcon={<EditIcon />}

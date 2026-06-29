@@ -60,7 +60,7 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {exams.data.map((exam) => (
+                        {exams.data.map(exam => (
                             <TableRow key={exam.id}>
                                 <TableCell>{exam.title}</TableCell>
                                 <TableCell>{exam.exam_date}</TableCell>
@@ -86,7 +86,7 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
                                             <Button
                                                 size="small"
                                                 startIcon={<EditIcon />}
-                                                href={`/exams/${exam.id}/edit`}
+                                                href={`/exams/${exam.slug}/edit`}
                                                 component="a"
                                             >
                                                 ویرایش
