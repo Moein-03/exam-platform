@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Exam;
 use App\Models\Question;
 use App\Models\Answer;
@@ -21,9 +22,15 @@ class ExamController extends Controller
                 'exams' => $exams,
                 'auth' => ['user' => $user]
             ];
-        } else {
-            $exams = Exam::active()->where('status', 'فعال')->orderBy('exam_date', 'desc')->paginate(10);
-
+        } else {    
+            $exams = $user->examsAsStudent()
+                ->where(function($query) {
+                    $query->whereIn('exam_users.status', ['in_progress', 'finished'])
+                        ->orWhere('exams.status', 'فعال');
+                })
+                ->orderBy('exam_date', 'desc')
+                ->paginate(10);
+            
             $pageProps = [
                 'isTeacher' => false,
                 'exams' => $exams,
@@ -133,16 +140,6 @@ class ExamController extends Controller
         }
     }
 
-    /* public function destroy(Exam $exam)
-    {
-        $this->authorizeOwner($exam);
-        $user = auth()->user();
-        if ($user->isTeacher() && $exam->created_by == $user->id) {
-            $exam->delete();
-            return redirect()->route('exams.index')->with('success', 'آزمون حذف شد.');
-        }
-    } */
-
     public function destroy($slug)
     {
         $exam = Exam::where('slug', $slug)->firstOrFail();
@@ -158,7 +155,7 @@ class ExamController extends Controller
         }
     }  
 
-    public function manageQuestions(Exam $exam)
+   /*  public function manageQuestions(Exam $exam)
     {
         $this->authorizeOwner($exam);
         $user = auth()->user();
@@ -189,6 +186,52 @@ class ExamController extends Controller
         if ($user->isTeacher() && $exam->created_by == $user->id) {
             $exam->questions()->sync($request->questions);
             return redirect()->route('exams.show', $exam->slug)->with('success', 'سوالات با موفقیت به آزمون اضافه شد.');
+        }
+    } */
+
+    public function manageExam(Exam $exam)
+    {
+        $this->authorizeOwner($exam);
+        $user = auth()->user();
+        
+        $students = User::where('role', 'student')->get();
+        $selectedStudents = $exam->students()->pluck('user_id')->toArray();
+        $allQuestions = Question::where('created_by', $user->id)->get();
+        $selectedQuestions = $exam->questions()->pluck('question_id')->toArray();
+        
+        if ($user->isTeacher() && $exam->created_by == $user->id) {
+            $pageProps = [
+                'isTeacher' => true,
+                'exam' => $exam,
+                'students' => $students,
+                'selectedStudents' => $selectedStudents,
+                'allQuestions' => $allQuestions,
+                'selectedQuestions' => $selectedQuestions,
+                'auth' => ['user' => $user]
+            ];
+            
+            return view('exams.manage', ['pageProps' => $pageProps]);
+        }
+    }
+
+    public function updateExamManagement(Request $request, Exam $exam)
+    {
+        $this->authorizeOwner($exam);
+        $user = auth()->user();
+        
+        $request->validate([
+            'students' => 'array',
+            'students.*' => 'exists:users,id',
+            'questions' => 'array',
+            'questions.*' => 'exists:questions,id',
+        ]);
+        
+        if ($user->isTeacher() && $exam->created_by == $user->id) {
+            $exam->students()->sync($request->students ?? []);
+            $exam->questions()->sync($request->questions ?? []);
+            $exam->update(['status' => 'فعال']);
+            
+            return redirect()->route('exams.show', $exam->slug)->with('success', 'آزمون با موفقیت فعال شد و دانشجوها و سوالات به آن اضافه شدند.');
         }
     }
 

@@ -194,6 +194,7 @@ const ExamForm = ({ exam }) => {
                     <Button
                         variant="outlined"
                         href="/exams"
+                        sx={{ width: '130px', height: '50px' }}
                     >
                         بازگشت به لیست
                     </Button>

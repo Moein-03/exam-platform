@@ -7,7 +7,8 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import { Settings } from '@mui/icons-material';
+//import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import { toast } from 'react-toastify';
 
 const ShowExam = ({ auth, exam: initialExam }) => {
@@ -60,7 +61,8 @@ const ShowExam = ({ auth, exam: initialExam }) => {
         );
     }
 
-    const isOwner = auth.user.isTeacher && exam.created_by === auth.user.id;
+    //const isOwner = auth.user.isTeacher && exam.created_by === auth.user.id;
+    const isOwner = exam.created_by === auth.user.id;
 
     return (
         <AuthenticatedLayout user={auth.user} header={`نمایش آزمون: ${exam.title}`}>
@@ -134,25 +136,26 @@ const ShowExam = ({ auth, exam: initialExam }) => {
                                     <>
                                         <Button
                                             variant="contained"
-                                            startIcon={<EditIcon />}
-                                            href={`/exams/${exam.id}/edit`}
+                                            startIcon={<EditIcon sx={{marginLeft: '5px'}}/>}
+                                            href={`/exams/${exam.slug}/edit`}
                                         >
                                             ویرایش آزمون
                                         </Button>
                                         <Button
                                             variant="contained"
+                                            color="warning"
+                                            startIcon={<Settings sx={{marginLeft: '5px'}}/>}
+                                            href={`/exams/${exam.slug}/manage-exam`}
+                                        >
+                                            مدیریت آزمون
+                                        </Button>
+                                        <Button
+                                            variant="contained"
                                             color="error"
-                                            startIcon={<DeleteIcon />}
+                                            startIcon={<DeleteIcon sx={{marginLeft: '5px'}}/>}
                                             onClick={handleDelete}
                                         >
                                             حذف آزمون
-                                        </Button>
-                                        <Button
-                                            variant="outlined"
-                                            startIcon={<QuestionAnswerIcon />}
-                                            href={`/exams/${exam.slug}/manage-questions`}
-                                        >
-                                            مدیریت سوالات
                                         </Button>
                                     </>
                                 )}
@@ -168,6 +171,7 @@ const ShowExam = ({ auth, exam: initialExam }) => {
                                 <Button
                                     variant="outlined"
                                     href="/exams"
+                                    sx={{ width: '130px', height: '50px' }}
                                 >
                                     بازگشت به لیست
                                 </Button>

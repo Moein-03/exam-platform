@@ -104,7 +104,7 @@ const QuestionsIndex = ({ isTeacher, auth, questions: initialQuestions }) => {
                                     </Button> */}
                                     <Button
                                         size="small"
-                                        startIcon={<EditIcon />}
+                                        startIcon={<EditIcon sx={{marginLeft: '5px'}}/>}
                                         href={`/questions/${q.id}/edit`}
                                         component="a"
                                     >
@@ -112,7 +112,7 @@ const QuestionsIndex = ({ isTeacher, auth, questions: initialQuestions }) => {
                                     </Button>
                                     <Button
                                         size="small"
-                                        startIcon={<DeleteIcon />}
+                                        startIcon={<DeleteIcon sx={{marginLeft: '5px'}}/>}
                                         onClick={() => handleDelete(q.id)}
                                         color="error"
                                     >

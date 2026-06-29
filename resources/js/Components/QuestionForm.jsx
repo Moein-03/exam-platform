@@ -204,6 +204,7 @@ const QuestionForm = ({ question }) => {
                     <Button
                         variant="outlined"
                         href="/questions"
+                        sx={{ width: '130px', height: '50px' }}
                     >
                         بازگشت به لیست
                     </Button>

@@ -74,7 +74,7 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
                                 <TableCell>
                                     <Button
                                         size="small"
-                                        startIcon={<VisibilityIcon />}
+                                        startIcon={<VisibilityIcon sx={{marginLeft: '5px'}}/>}
                                         href={`/exams/${exam.slug}`}
                                         component="a"
                                     >
@@ -85,7 +85,7 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
                                         <>
                                             <Button
                                                 size="small"
-                                                startIcon={<EditIcon />}
+                                                startIcon={<EditIcon sx={{marginLeft: '5px'}}/>}
                                                 href={`/exams/${exam.slug}/edit`}
                                                 component="a"
                                             >
@@ -93,8 +93,9 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
                                             </Button>
                                             <Button
                                                 size="small"
-                                                startIcon={<DeleteIcon />}
+                                                startIcon={<DeleteIcon sx={{marginLeft: '5px'}}/>}
                                                 onClick={() => handleDelete(exam.slug)}
+                                                color="error"
                                             >
                                                 حذف
                                             </Button>

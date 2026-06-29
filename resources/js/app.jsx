@@ -14,6 +14,7 @@ import ExamsIndex from './Pages/Exams/ExamsIndex';
 //import ExamResults from './Pages/Exams/ExamResults';
 import ShowExam from './Pages/Exams/ShowExam';
 import EditExam from './Pages/Exams/EditExam';
+import ManageExam from './Pages/Exams/ManageExam';
 import TakeExam from './Pages/Exams/TakeExam';
 
 import QuestionsIndex from './Pages/Questions/QuestionsIndex';
@@ -42,7 +43,8 @@ const components = {
      TakeExam,
      QuestionsIndex,
      CreateQuestion,
-     EditQuestion
+     EditQuestion,
+     ManageExam
 };
 
 const pageName = window.pageName || 'HomePage';
