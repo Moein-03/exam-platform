@@ -44,7 +44,6 @@ const ExamForm = ({ exam }) => {
                 
                 toast.success(isEditing ? 'آزمون با موفقیت ویرایش شد' : 'آزمون با موفقیت ایجاد شد');
                 
-                // بعد از موفقیت، به صفحه نمایش آزمون برو
                 if (isEditing) {
                     window.location.href = `/exams/${exam.slug}`;
                 } else {
@@ -104,7 +103,7 @@ const ExamForm = ({ exam }) => {
                             type="time"
                             name="start_time"
                             label="زمان شروع"
-                            slotProps={{ inputLabel: { shrink: true } }}  // جایگزین InputLabelProps
+                            slotProps={{ inputLabel: { shrink: true } }}
                             value={formik.values.start_time}
                             onChange={formik.handleChange}
                         />

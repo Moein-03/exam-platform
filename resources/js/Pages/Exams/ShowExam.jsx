@@ -61,7 +61,6 @@ const ShowExam = ({ auth, exam: initialExam }) => {
         );
     }
 
-    //const isOwner = auth.user.isTeacher && exam.created_by === auth.user.id;
     const isOwner = exam.created_by === auth.user.id;
 
     return (
