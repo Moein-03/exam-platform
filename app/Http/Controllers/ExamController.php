@@ -101,18 +101,72 @@ class ExamController extends Controller
     {
         $this->authorizeOwner($exam);
         $user = auth()->user();
-        if ($user->isTeacher() && $exam->created_by == $user->id) {
+        //if ($user->isTeacher() && $exam->created_by == $user->id) {
             $pageProps = [
                 'isTeacher' => true,
                 'exam' => $exam,
                 'auth' => ['user' => $user]
             ];
             return view('exams.edit', ['pageProps' => $pageProps]);
-        }
+        //}
         abort(403, 'شما اجازه ویرایش این آزمون را ندارید.');
     }
 
-    public function update(Request $request, Exam $exam)
+    public function update(Request $request, $slug)
+    {
+        $exam = Exam::where('slug', $slug)->firstOrFail();
+        $this->authorizeOwner($exam);
+        
+        if ($exam->status !== 'پیش‌نویس') {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => 'فقط آزمون‌های با وضعیت پیش‌نویس قابل ویرایش هستند.'
+                ], 403);
+            }
+            return redirect()->back()->with('error', 'فقط آزمون‌های با وضعیت پیش‌نویس قابل ویرایش هستند.');
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'exam_date' => 'required|date',
+            'start_time' => 'required',
+            'duration_min' => 'required|integer|min:1',
+            'question_count' => 'required|integer|min:1',
+            'total_score' => 'required|numeric|min:0',
+            'category' => 'nullable|string|max:100',
+            'question_selection_type' => 'required|in:manual,random',
+            'allow_download' => 'boolean',
+            'detailed_feedback' => 'boolean',
+            'status' => 'in:پیش‌نویس,فعال,بسته شده',
+        ]);
+
+        $exam->update($validated);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'slug' => $exam->slug,
+                'message' => 'آزمون با موفقیت به روز شد.',
+                'exam' => $exam
+            ], 200);
+        }
+
+        return redirect()->route('exams.show', $exam->slug)->with('success', 'آزمون به روز شد.');
+    }
+
+    public function destroy($slug)
+    {
+        $exam = Exam::where('slug', $slug)->firstOrFail();
+        $this->authorizeOwner($exam);
+        $exam->delete();
+        
+        if (request()->expectsJson()) {
+            return response()->json(['message' => 'آزمون حذف شد']);
+        }
+        return redirect()->route('exams.index')->with('success', 'آزمون حذف شد.');
+    }
+
+    /* public function update(Request $request, Exam $exam)
     {
         $this->authorizeOwner($exam);
         $user = auth()->user();
@@ -167,7 +221,7 @@ class ExamController extends Controller
             }
             return redirect()->route('exams.index')->with('success', 'آزمون حذف شد.');
         }
-    }  
+    }   */
 
    /*  public function manageQuestions(Exam $exam)
     {

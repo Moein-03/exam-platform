@@ -35,7 +35,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // منابع آزمون‌ها
-    Route::resource('exams', ExamController::class)->except(['manageExam', 'updateExamManagement']);;
+    Route::get('/exams', [ExamController::class, 'index'])->name('exams.index');
+    Route::get('/exams/create', [ExamController::class, 'create'])->name('exams.create');
+    Route::post('/exams', [ExamController::class, 'store'])->name('exams.store');
+    Route::get('/exams/{exam:slug}', [ExamController::class, 'show'])->name('exams.show');
+    Route::get('/exams/{exam:slug}/edit', [ExamController::class, 'edit'])->name('exams.edit');
+    Route::put('/exams/{exam:slug}', [ExamController::class, 'update'])->name('exams.update');
+    Route::delete('/exams/{exam:slug}', [ExamController::class, 'destroy'])->name('exams.destroy');
+
+    //Route::resource('exams', ExamController::class)->except(['manageExam', 'updateExamManagement']);;
     /* Route::resource('exams', ExamController::class)->except(['show', 'create', 'destroy', 'edit']);
     Route::get('/exams/create', [ExamController::class, 'create'])->name('exams.create');
     Route::get('/exams/{exam}/edit', [ExamController::class, 'edit'])->name('exams.edit');
@@ -48,9 +56,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/exams/{exam:slug}/submit', [ExamController::class, 'submit'])->name('exams.submit');
     Route::get('/exams/{exam:slug}/results', [ExamController::class, 'results'])->name('exams.results'); */
 
-    Route::get('/exams/{exam:slug}/manage-exam', [ExamController::class, 'manageExam'])->name('exams.manage_exam');
-    Route::post('/exams/{exam:slug}/manage-exam', [ExamController::class, 'updateExamManagement']);
+    //Route::get('/exams/{exam:slug}/edit', [ExamController::class, 'edit'])->name('exams.edit');
+    //Route::get('/exams/{exam:slug}/manage-exam', [ExamController::class, 'manageExam'])->name('exams.manage_exam');
+    //Route::post('/exams/{exam:slug}/manage-exam', [ExamController::class, 'updateExamManagement']);
     //Route::post('/exams/{exam:slug}/manage-exam', [ExamController::class, 'updateExamManagement'])->name('exams.update_management');
+    
+    // مدیریت آزمون
+    Route::get('/exams/{exam:slug}/manage-exam', [ExamController::class, 'manageExam'])->name('exams.manage_exam');
+    Route::post('/exams/{exam:slug}/manage-exam', [ExamController::class, 'updateExamManagement'])->name('exams.update_management');
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/my-results', [ExamController::class, 'myResults'])->name('my-results');

@@ -14,7 +14,7 @@ const validationSchema = yup.object({
     category: yup.string(),
     question_selection_type: yup.string().oneOf(['manual', 'random']),
     allow_download: yup.boolean(),
-    detailed_feedback: yup.boolean(),
+    detailed_feedback: yup.boolean()
 });
 
 const ExamForm = ({ exam }) => {
@@ -43,25 +43,48 @@ const ExamForm = ({ exam }) => {
             }
 
             try {
-                const url = isEditing ? `/exams/${exam.id}` : '/exams';
+                const url = isEditing ? `/exams/${exam.slug}` : '/exams';
                 const method = isEditing ? 'put' : 'post';
                 
                 const response = await axios[method](url, values);
-
-                if (response.data?.slug) {
-                    toast.success(response.data.message || 'آزمون با موفقیت ویرایش شد');
-                    window.location.href = `/exams/${response.data.slug}`;
-                } 
                 
-                else {
-                    toast.success('آزمون با موفقیت ایجاد شد');
-                    const createResponse = await axios.post('/exams', values);
-                    window.location.href = `/exams/${createResponse.data.slug}/manage-exam`;
+                // اگر پاسخ موفق بود
+                if (response.data) {
+                    toast.success(response.data.message || (isEditing ? 'آزمون با موفقیت ویرایش شد' : 'آزمون با موفقیت ایجاد شد'));
+                    
+                    // ریدایرکت به صفحه نمایش آزمون
+                    const slug = response.data.slug || exam?.slug;
+                    if (slug) {
+                        window.location.href = `/exams/${slug}`;
+                    } else {
+                        window.location.href = '/exams';
+                    }
                 }
             } catch (error) {
-                const message = error.response?.data?.error || 'خطا در ذخیره آزمون';
-                toast.error(message);
-                console.error(error);
+                // مدیریت خطاهای مختلف
+                let errorMessage = 'خطا در ذخیره آزمون';
+                
+                if (error.response) {
+                    // سرور پاسخ داده با خطا
+                    if (error.response.status === 404) {
+                        errorMessage = 'آزمون مورد نظر یافت نشد. ممکن است حذف شده باشد.';
+                    } else if (error.response.status === 403) {
+                        errorMessage = 'شما اجازه ویرایش این آزمون را ندارید.';
+                    } else if (error.response.data?.error) {
+                        errorMessage = error.response.data.error;
+                    } else if (error.response.status === 422) {
+                        const errors = error.response.data.errors;
+                        if (errors) {
+                            const firstError = Object.values(errors)[0]?.[0];
+                            errorMessage = firstError || 'خطا در اعتبارسنجی اطلاعات';
+                        }
+                    }
+                } else if (error.request) {
+                    errorMessage = 'ارتباط با سرور برقرار نشد.';
+                }
+                
+                toast.error(errorMessage);
+                console.error('Error details:', error);
             }
         }
     });
