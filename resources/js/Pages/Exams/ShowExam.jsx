@@ -133,13 +133,9 @@ const ShowExam = ({ auth, exam: initialExam }) => {
                             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                                 {isOwner && (
                                     <>
-                                        <Button
-                                            variant="contained"
-                                            startIcon={<EditIcon sx={{marginLeft: '5px'}}/>}
-                                            href={`/exams/${exam.slug}/edit`}
-                                        >
+                                        {exam.status === 'پیش‌نویس' && <Button variant="contained" startIcon={<EditIcon sx={{marginLeft: '5px'}}/>} href={`/exams/${exam.slug}/edit`}>
                                             ویرایش آزمون
-                                        </Button>
+                                        </Button>}
                                         <Button
                                             variant="contained"
                                             color="warning"

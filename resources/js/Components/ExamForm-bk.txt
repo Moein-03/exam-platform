@@ -1,7 +1,7 @@
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axios from 'axios';
-import { TextField, Button, FormControlLabel, Switch, MenuItem, Grid, Paper, Typography, Alert } from '@mui/material';
+import { TextField, Button, FormControlLabel, Switch, MenuItem, Grid, Paper, Typography } from '@mui/material';
 import { toast } from 'react-toastify';
 
 const validationSchema = yup.object({
@@ -19,7 +19,6 @@ const validationSchema = yup.object({
 
 const ExamForm = ({ exam }) => {
     const isEditing = !!exam;
-    const isDraft = exam?.status === 'پیش‌نویس';
 
     const formik = useFormik({
         initialValues: {
@@ -37,59 +36,35 @@ const ExamForm = ({ exam }) => {
         },
         validationSchema,
         onSubmit: async (values) => {
-            if (isEditing && !isDraft) {
-                toast.error('فقط آزمون‌های با وضعیت پیش‌نویس قابل ویرایش هستند.');
-                return;
-            }
-
             try {
                 const url = isEditing ? `/exams/${exam.id}` : '/exams';
                 const method = isEditing ? 'put' : 'post';
                 
                 const response = await axios[method](url, values);
-
-                if (response.data?.slug) {
-                    toast.success(response.data.message || 'آزمون با موفقیت ویرایش شد');
-                    window.location.href = `/exams/${response.data.slug}`;
-                } 
                 
-                else {
-                    toast.success('آزمون با موفقیت ایجاد شد');
-                    const createResponse = await axios.post('/exams', values);
-                    window.location.href = `/exams/${createResponse.data.slug}/manage-exam`;
+                toast.success(isEditing ? 'آزمون با موفقیت ویرایش شد' : 'آزمون با موفقیت ایجاد شد');
+                
+                if (isEditing) {
+                    setTimeout(() => {
+                        window.location.href = `/exams/${exam.slug}`;
+                    }, 500);
+                } else {
+                    setTimeout(() => {
+                        window.location.href = `/exams/${response.data.slug || ''}`;
+                    }, 500);
                 }
             } catch (error) {
-                const message = error.response?.data?.error || 'خطا در ذخیره آزمون';
-                toast.error(message);
-                console.error(error);
+                toast.error('خطا در ذخیره آزمون');
+                console.error(error.response?.data || error);
             }
         }
     });
-
-    // اگر ویرایش است و وضعیت پیش‌نویس نیست، هشدار بده
-    if (isEditing && !isDraft) {
-        return (
-            <Paper sx={{ p: 3, direction: 'rtl' }}>
-                <Alert severity="warning">
-                    این آزمون در وضعیت <strong>{exam.status}</strong> است و قابل ویرایش نمی‌باشد.
-                </Alert>
-                <Button variant="outlined" href={`/exams/${exam.slug}`} sx={{ mt: 2 }}>
-                    بازگشت به صفحه آزمون
-                </Button>
-            </Paper>
-        );
-    }
 
     return (
         <Paper sx={{ p: 3, direction: 'rtl' }}>
             <Typography variant="h5" gutterBottom>
                 {isEditing ? 'ویرایش آزمون' : 'آزمون جدید'}
             </Typography>
-            {isEditing && isDraft && (
-                <Alert severity="info" sx={{ mb: 2 }}>
-                    این آزمون در وضعیت پیش‌نویس است و قابل ویرایش می‌باشد.
-                </Alert>
-            )}
             <form onSubmit={formik.handleSubmit}>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
@@ -120,7 +95,7 @@ const ExamForm = ({ exam }) => {
                             type="date"
                             name="exam_date"
                             label="تاریخ برگزاری"
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ inputLabel: { shrink: true } }}
                             value={formik.values.exam_date}
                             onChange={formik.handleChange}
                             error={formik.touched.exam_date && Boolean(formik.errors.exam_date)}
@@ -132,7 +107,7 @@ const ExamForm = ({ exam }) => {
                             type="time"
                             name="start_time"
                             label="زمان شروع"
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ inputLabel: { shrink: true } }}
                             value={formik.values.start_time}
                             onChange={formik.handleChange}
                         />
@@ -181,17 +156,35 @@ const ExamForm = ({ exam }) => {
                         </TextField>
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField fullWidth name="category" label="دسته‌بندی" value={formik.values.category} onChange={formik.handleChange} />
+                        <TextField
+                            fullWidth
+                            name="category"
+                            label="دسته‌بندی"
+                            value={formik.values.category}
+                            onChange={formik.handleChange}
+                        />
                     </Grid>
                     <Grid item xs={6}>
                         <FormControlLabel
-                            control={<Switch name="allow_download" checked={formik.values.allow_download} onChange={formik.handleChange} />}
+                            control={
+                                <Switch
+                                    name="allow_download"
+                                    checked={formik.values.allow_download}
+                                    onChange={formik.handleChange}
+                                />
+                            }
                             label="اجازه دانلود سوالات"
                         />
                     </Grid>
                     <Grid item xs={6}>
                         <FormControlLabel
-                            control={<Switch name="detailed_feedback" checked={formik.values.detailed_feedback} onChange={formik.handleChange} />}
+                            control={
+                                <Switch
+                                    name="detailed_feedback"
+                                    checked={formik.values.detailed_feedback}
+                                    onChange={formik.handleChange}
+                                />
+                            }
                             label="نمایش بازخورد دقیق به دانشجو"
                         />
                     </Grid>
@@ -200,6 +193,7 @@ const ExamForm = ({ exam }) => {
                             {isEditing ? 'به‌روزرسانی' : 'ایجاد آزمون'}
                         </Button>
                     </Grid>
+                    
                     <Button
                         variant="outlined"
                         href="/exams"

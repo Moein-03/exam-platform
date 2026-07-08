@@ -116,6 +116,16 @@ class ExamController extends Controller
     {
         $this->authorizeOwner($exam);
         $user = auth()->user();
+
+        if ($exam->status !== 'پیش‌نویس') {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => 'فقط آزمون‌های با وضعیت پیش‌نویس قابل ویرایش هستند.'
+                ], 403);
+            }
+            return redirect()->back()->with('error', 'فقط آزمون‌های با وضعیت پیش‌نویس قابل ویرایش هستند.');
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -134,7 +144,11 @@ class ExamController extends Controller
         if ($user->isTeacher() && $exam->created_by == $user->id) {
             $exam->update($validated);
             if ($request->expectsJson()) {
-                return response()->json(['slug' => $exam->slug], 200);
+                return response()->json([
+                    'slug' => $exam->slug,
+                    'message' => 'آزمون با موفقیت به روز شد.',
+                    'exam' => $exam
+                ], 200);
             }
             return redirect()->route('exams.show', $exam->slug)->with('success', 'آزمون به روز شد.');
         }

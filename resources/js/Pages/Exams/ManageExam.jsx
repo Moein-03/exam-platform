@@ -79,8 +79,10 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
                toast.warning('حداقل یک دانشجو را انتخاب کنید');
                return;
           }
-          if (selectedQuestionIds.length === 0) {
-               toast.warning('حداقل یک سوال را انتخاب کنید');
+          
+          // بررسی تعداد سوالات انتخاب‌شده
+          if (selectedQuestionIds.length !== exam.question_count) {
+               toast.warning(`تعداد سوالات انتخاب‌شده باید دقیقاً ${exam.question_count} باشد. (در حال حاضر ${selectedQuestionIds.length} سوال انتخاب شده است)`);
                return;
           }
 
@@ -93,7 +95,8 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
                toast.success('آزمون با موفقیت فعال شد');
                window.location.href = `/exams/${exam.slug}`;
           } catch (error) {
-               toast.error('خطا در ذخیره تغییرات');
+               const message = error.response?.data?.error || 'خطا در ذخیره تغییرات';
+               toast.error(message);
                console.error(error);
                setLoading(false);
           }
