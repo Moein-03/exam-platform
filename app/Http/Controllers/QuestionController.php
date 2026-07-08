@@ -122,6 +122,13 @@ class QuestionController extends Controller
         if ($user->isTeacher() && $question->created_by == $user->id) {
             $question->update($validated);
 
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'سوال با موفقیت به روز شد.',
+                    'question' => $question
+                ]);
+            }
+
             return redirect()->route('questions.index')
                 ->with('success', 'سوال به روز شد.');
         }

@@ -46,7 +46,9 @@ const QuestionForm = ({ question }) => {
 
                 await axios[method](url, payload);
                 toast.success(isEditing ? 'سوال با موفقیت ویرایش شد' : 'سوال با موفقیت ایجاد شد');
-                window.location.href = '/questions';
+                setTimeout(() => {
+                    window.location.href = '/questions';
+                }, 500);
             } catch (error) {
                 toast.error('خطا در ذخیره سوال');
                 console.error(error.response?.data || error);

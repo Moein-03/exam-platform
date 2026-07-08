@@ -45,9 +45,13 @@ const ExamForm = ({ exam }) => {
                 toast.success(isEditing ? 'آزمون با موفقیت ویرایش شد' : 'آزمون با موفقیت ایجاد شد');
                 
                 if (isEditing) {
-                    window.location.href = `/exams/${exam.slug}`;
+                    setTimeout(() => {
+                        window.location.href = `/exams/${exam.slug}`;
+                    }, 500);
                 } else {
-                    window.location.href = `/exams/${response.data.slug || ''}`;
+                    setTimeout(() => {
+                        window.location.href = `/exams/${response.data.slug || ''}`;
+                    }, 500);
                 }
             } catch (error) {
                 toast.error('خطا در ذخیره آزمون');
