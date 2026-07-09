@@ -22,6 +22,11 @@ class Exam extends Model
         'detailed_feedback' => 'boolean',
     ];
 
+    const STATUS_DRAFT = 'پیش‌نویس';
+    const STATUS_ACTIVE = 'فعال';
+    const STATUS_ONGOING = 'درحال برگزاری';
+    const STATUS_FINISHED = 'اتمام آزمون';
+
     public function getRouteKeyName()
     {
         return 'slug';

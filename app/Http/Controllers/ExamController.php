@@ -308,7 +308,7 @@ class ExamController extends Controller
         }
     }
 
-    public function start(Exam $exam)
+    /* public function start(Exam $exam)
     {
         $user = auth()->user();
         if (!$user->isStudent()) abort(403);
@@ -381,6 +381,151 @@ class ExamController extends Controller
             'score' => $totalScore,
             'status' => 'finished'
         ]);
+
+        return redirect()->route('exams.results', $exam->slug)->with('success', 'پاسخ‌های شما ثبت شد. نمره شما محاسبه گردید.');
+    } */
+
+    /**
+     * برگزاری آزمون توسط استاد (تغییر وضعیت به درحال برگزاری)
+     */
+    public function conductExam($slug)
+    {
+        $exam = Exam::where('slug', $slug)->firstOrFail();
+        $this->authorizeOwner($exam);
+        
+        // فقط آزمون‌های با وضعیت 'فعال' قابل برگزاری هستند
+        if ($exam->status !== 'فعال') {
+            if (request()->expectsJson()) {
+                return response()->json(['error' => 'فقط آزمون‌های فعال قابل برگزاری هستند.'], 403);
+            }
+            return redirect()->back()->with('error', 'فقط آزمون‌های فعال قابل برگزاری هستند.');
+        }
+        
+        // بررسی تاریخ و ساعت فعلی با تاریخ و ساعت آزمون (با دقت دقیقه)
+        $now = Carbon::now();
+        $examDateTime = Carbon::parse($exam->exam_date . ' ' . $exam->start_time);
+        
+        if ($now->format('Y-m-d H:i') !== $examDateTime->format('Y-m-d H:i')) {
+            $errorMsg = 'زمان برگزاری آزمون فرا نرسیده است. زمان آزمون: ' . $examDateTime->format('Y-m-d H:i');
+            if (request()->expectsJson()) {
+                return response()->json(['error' => $errorMsg], 403);
+            }
+            return redirect()->back()->with('error', $errorMsg);
+        }
+        
+        // تغییر وضعیت به 'درحال برگزاری'
+        $exam->update(['status' => 'درحال برگزاری']);
+        
+        if (request()->expectsJson()) {
+            return response()->json(['message' => 'آزمون با موفقیت برگزار شد.', 'status' => 'درحال برگزاری']);
+        }
+        return redirect()->route('exams.show', $exam->slug)->with('success', 'آزمون با موفقیت برگزار شد.');
+    }
+
+    /**
+     * پایان آزمون (توسط تایمر یا دانشجو)
+     */
+    public function endExam($slug)
+    {
+        $exam = Exam::where('slug', $slug)->firstOrFail();
+        $this->authorizeOwner($exam);
+        
+        if ($exam->status === 'درحال برگزاری') {
+            $exam->update(['status' => 'اتمام آزمون']);
+            return response()->json(['message' => 'آزمون به پایان رسید.', 'status' => 'اتمام آزمون']);
+        }
+        
+        return response()->json(['message' => 'وضعیت آزمون برای پایان مناسب نیست.'], 400);
+    }
+
+    /**
+     * شروع آزمون توسط دانشجو
+     */
+    public function start(Exam $exam)
+    {
+        $user = auth()->user();
+        if (!$user->isStudent()) abort(403);
+
+        // دانشجو فقط در وضعیت 'درحال برگزاری' می‌تواند شروع کند
+        if ($exam->status !== 'درحال برگزاری') {
+            abort(403, 'آزمون در حال حاضر قابل شروع نیست.');
+        }
+
+        $examUser = $exam->students()->where('user_id', $user->id)->first();
+        if (!$examUser) {
+            $exam->students()->attach($user->id, [
+                'status' => 'in_progress',
+                'started_at' => now()
+            ]);
+            $examUser = $exam->students()->where('user_id', $user->id)->first();
+        } elseif ($examUser->pivot->status === 'finished') {
+            return redirect()->route('exams.results', $exam->slug)->with('info', 'شما قبلاً در این آزمون شرکت کرده‌اید.');
+        }
+
+        // اگر نوع انتخاب سوال تصادفی است
+        if ($exam->question_selection_type === 'random') {
+            $randomQuestions = Question::inRandomOrder()->limit($exam->question_count)->get();
+            $exam->questions()->sync($randomQuestions->pluck('id')->mapWithKeys(function ($id, $index) {
+                return [$id => ['order' => $index + 1]];
+            }));
+        }
+
+        $questions = $exam->questions()->orderBy('order')->get();
+        $pageProps = [
+            'isTeacher' => false,
+            'exam' => $exam,
+            'questions' => $questions,
+            'auth' => ['user' => $user]
+        ];
+        return view('exams.take', ['pageProps' => $pageProps]);
+    }
+
+    /**
+     * ثبت پاسخ‌های دانشجو
+     */
+    public function submit(Request $request, Exam $exam)
+    {
+        $user = auth()->user();
+        $examUser = $exam->students()->where('user_id', $user->id)->first();
+        if (!$examUser || $examUser->pivot->status === 'finished') {
+            abort(403, 'شما مجاز به ارسال پاسخ نیستید.');
+        }
+
+        $request->validate([
+            'answers' => 'required|array',
+            'answers.*' => 'required|string'
+        ]);
+
+        // ذخیره پاسخ‌ها
+        foreach ($request->answers as $questionId => $selectedAnswer) {
+            $question = Question::find($questionId);
+            $isCorrect = $question->isAnswerCorrect($selectedAnswer);
+            Answer::updateOrCreate(
+                [
+                    'exam_id' => $exam->id,
+                    'user_id' => $user->id,
+                    'question_id' => $questionId
+                ],
+                [
+                    'selected_answer' => $selectedAnswer,
+                    'is_correct' => $isCorrect,
+                    'time_spent_seconds' => $request->input("time_$questionId", 0)
+                ]
+            );
+        }
+
+        // محاسبه نمره
+        $totalScore = $exam->calculateStudentScore($user->id);
+        $exam->students()->updateExistingPivot($user->id, [
+            'finished_at' => now(),
+            'score' => $totalScore,
+            'status' => 'finished'
+        ]);
+
+        // اگر وضعیت آزمون 'درحال برگزاری' است، به 'اتمام آزمون' تغییر بده
+        if ($exam->status === 'درحال برگزاری') {
+            $exam->update(['status' => 'اتمام آزمون']);
+        }
 
         return redirect()->route('exams.results', $exam->slug)->with('success', 'پاسخ‌های شما ثبت شد. نمره شما محاسبه گردید.');
     }

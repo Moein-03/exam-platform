@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import Timer from '@/Components/Timer';
+import Timer from '../../Components/Timer';
 import {
     Box, Paper, Typography, Grid, Button,
     Radio, RadioGroup, FormControlLabel,
@@ -10,14 +10,13 @@ import {
 } from '@mui/material';
 import { toast } from 'react-toastify';
 
-const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
+const TakeExam = ({ isTeacher, auth, exam: initialExam, questions: initialQuestions }) => {
     const [exam, setExam] = useState(initialExam || null);
     const [questions, setQuestions] = useState(initialQuestions || []);
     const [answers, setAnswers] = useState({});
     const [loading, setLoading] = useState(!initialExam);
     const [submitting, setSubmitting] = useState(false);
 
-    // بارگذاری دیتا اگه از props نیومده باشه
     useEffect(() => {
         if (!initialExam) {
             const slug = window.location.pathname.split('/').slice(-2, -1)[0];
@@ -38,33 +37,7 @@ const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
         setAnswers(prev => ({ ...prev, [questionId]: value }));
     };
 
-    // پایان آزمون توسط تایمر
-    const handleTimeout = async () => {
-        if (submitting) return;
-        setSubmitting(true);
-        
-        try {
-            // پایان آزمون توسط تایمر
-            await axios.post(`/exams/${exam.slug}/end`);
-            
-            // ثبت خودکار پاسخ‌های موجود (اگر دکمه ارسال نزده)
-            if (Object.keys(answers).length > 0) {
-                await axios.post(`/exams/${exam.slug}/submit`, { answers });
-            }
-            
-            toast.info('زمان آزمون به پایان رسید.');
-            window.location.href = `/exams/${exam.slug}/results`;
-        } catch (error) {
-            toast.error('خطا در پایان آزمون');
-            console.error(error);
-            setSubmitting(false);
-        }
-    };
-
     const handleSubmit = async () => {
-        // پاپ‌آپ تأیید اتمام
-        if (!confirm('آیا از اتمام آزمون و ثبت پاسخ‌ها اطمینان دارید؟')) return;
-        
         if (submitting) return;
         setSubmitting(true);
 
@@ -93,7 +66,7 @@ const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
 
     if (loading) {
         return (
-            <AuthenticatedLayout user={auth.user} header="بارگذاری...">
+            <AuthenticatedLayout user={auth.user} header="بارگذاری..." isTeacher={isTeacher}>
                 <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
                     <CircularProgress />
                 </Box>
@@ -112,7 +85,6 @@ const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
     return (
         <AuthenticatedLayout user={auth.user} header={`شرکت در آزمون: ${exam.title}`}>
             <Box sx={{ p: 3 }}>
-                {/* هدر با تایمر */}
                 <Paper sx={{ p: 3, mb: 3 }}>
                     <Grid container spacing={2} alignItems="center">
                         <Grid item xs={12} md={8}>
@@ -127,14 +99,13 @@ const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
                         <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                             <Timer
                                 initialSeconds={exam.duration_min * 60}
-                                onTimeout={handleTimeout}
+                                onTimeout={handleSubmit}
                                 autoSubmit={true}
                             />
                         </Grid>
                     </Grid>
                 </Paper>
 
-                {/* سوالات */}
                 <Paper sx={{ p: 3 }}>
                     <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
                         {questions.map((q, index) => (
@@ -200,7 +171,7 @@ const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
                                 disabled={submitting}
                                 size="large"
                             >
-                                {submitting ? 'در حال ارسال...' : 'اتمام آزمون و ثبت پاسخ‌ها'}
+                                {submitting ? 'در حال ارسال...' : 'ثبت پاسخ‌ها'}
                             </Button>
                         </Box>
                     </form>

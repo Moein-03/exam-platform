@@ -60,10 +60,16 @@ Route::middleware(['auth'])->group(function () {
     //Route::get('/exams/{exam:slug}/manage-exam', [ExamController::class, 'manageExam'])->name('exams.manage_exam');
     //Route::post('/exams/{exam:slug}/manage-exam', [ExamController::class, 'updateExamManagement']);
     //Route::post('/exams/{exam:slug}/manage-exam', [ExamController::class, 'updateExamManagement'])->name('exams.update_management');
+
     
     // مدیریت آزمون
     Route::get('/exams/{exam:slug}/manage-exam', [ExamController::class, 'manageExam'])->name('exams.manage_exam');
     Route::post('/exams/{exam:slug}/manage-exam', [ExamController::class, 'updateExamManagement'])->name('exams.update_management');
+
+    // برگزاری آزمون توسط استاد
+    Route::post('/exams/{exam:slug}/conduct', [ExamController::class, 'conductExam'])->name('exams.conduct');
+    // پایان آزمون (برای تایمر)
+    Route::post('/exams/{exam:slug}/end', [ExamController::class, 'endExam'])->name('exams.end');
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/my-results', [ExamController::class, 'myResults'])->name('my-results');
