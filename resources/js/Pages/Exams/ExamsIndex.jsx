@@ -102,7 +102,7 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
                                         </>
                                     )}
 
-                                    {!isTeacher && exam.status === 'فعال' && (
+                                    {!isTeacher && exam.status !== 'پیش‌نویس' && (
                                         <Button
                                             size="small"
                                             color="success"

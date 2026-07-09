@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Exam;
 use App\Models\Question;
 use App\Models\Answer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-
-use Carbon\Carbon;
 
 class ExamController extends Controller
 {
@@ -28,7 +27,7 @@ class ExamController extends Controller
             $exams = $user->examsAsStudent()
                 ->where(function($query) {
                     $query->whereIn('exam_users.status', ['in_progress', 'finished'])
-                        ->orWhere('exams.status', 'فعال');
+                        ->orWhere('exams.status', '!=', 'پیش‌نویس');
                 })
                 ->orderBy('exam_date', 'desc')
                 ->paginate(10);
@@ -399,21 +398,30 @@ class ExamController extends Controller
             return response()->json(['error' => 'فقط آزمون‌های فعال قابل برگزاری هستند.'], 403);
         }
         
-        // استفاده از منطقه زمانی محلی
+        $date = explode(' ', $exam->exam_date)[0];
+        
         $now = Carbon::now('Asia/Tehran');
-        $examDateTime = Carbon::parse($exam->exam_date . ' ' . $exam->start_time, 'Asia/Tehran');
+        $examDateTime = Carbon::parse($date . ' ' . $exam->start_time, 'Asia/Tehran');
         
-        // اختلاف زمانی به ثانیه
-        $diffInSeconds = $now->diffInSeconds($examDateTime, false);
+        $diffSeconds = $now->diffInSeconds($examDateTime, false);
         
-        // اگر اختلاف کمتر از 60 ثانیه باشد، اجازه برگزاری بده
-        if (abs($diffInSeconds) > 60) {
+        // اگر بیش از ۵ دقیقه (۳۰۰ ثانیه) از زمان آزمون گذشته باشد → خطا
+        if ($diffSeconds > 300) {
             return response()->json([
-                'error' => 'زمان برگزاری آزمون فرا نرسیده است. زمان فعلی: ' . $now->format('Y-m-d H:i') . 
+                'error' => 'زمان برگزاری آزمون گذشته است. زمان فعلی: ' . $now->format('Y-m-d H:i') .
                         ' | زمان آزمون: ' . $examDateTime->format('Y-m-d H:i')
             ], 403);
         }
         
+        // اگر بیش از ۶۰ ثانیه به زمان آزمون مانده باشد → خطا
+        if ($diffSeconds < -60) {
+            return response()->json([
+                'error' => 'زمان برگزاری آزمون فرا نرسیده است. زمان فعلی: ' . $now->format('Y-m-d H:i') .
+                        ' | زمان آزمون: ' . $examDateTime->format('Y-m-d H:i')
+            ], 403);
+        }
+        
+        // تغییر وضعیت
         $exam->update(['status' => 'درحال برگزاری']);
         
         return response()->json([
@@ -430,20 +438,7 @@ class ExamController extends Controller
             return response()->json(['error' => 'فقط آزمون‌های فعال قابل برگزاری هستند.'], 403);
         }
         
-        // زمان فعلی و زمان آزمون را با منطقه زمانی یکسان (UTC) مقایسه کنید
-        $now = Carbon::now('UTC');
-        $examDateTime = Carbon::parse($exam->exam_date . ' ' . $exam->start_time, 'UTC');
-        
-        // اختلاف زمانی به ثانیه
-        $diffInSeconds = $now->diffInSeconds($examDateTime, false);
-        
-        // اگر اختلاف کمتر از 60 ثانیه باشد، اجازه برگزاری بده
-        if (abs($diffInSeconds) > 60) {
-            return response()->json([
-                'error' => 'زمان برگزاری آزمون فرا نرسیده است. زمان آزمون: ' . $examDateTime->format('Y-m-d H:i')
-            ], 403);
-        }
-        
+        // تغییر وضعیت بدون بررسی زمان
         $exam->update(['status' => 'درحال برگزاری']);
         
         return response()->json([
@@ -451,6 +446,7 @@ class ExamController extends Controller
             'status' => 'درحال برگزاری'
         ]);
     } */
+    
 
     /**
      * پایان آزمون (توسط تایمر یا دانشجو)
