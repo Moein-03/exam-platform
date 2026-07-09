@@ -20,6 +20,18 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
      const [searchStudent, setSearchStudent] = useState('');
      const [searchQuestion, setSearchQuestion] = useState('');
 
+     // محاسبه مجموع نمرات سوالات انتخاب‌شده
+     const selectedQuestionsTotalScore = useMemo(() => {
+          return allQuestions
+               .filter(q => selectedQuestionIds.includes(q.id))
+               .reduce((sum, q) => sum + (q.score || 0), 0);
+     }, [allQuestions, selectedQuestionIds]);
+
+     // بررسی تطابق مجموع نمرات
+     const isTotalScoreMatched = useMemo(() => {
+          return selectedQuestionsTotalScore === exam.total_score;
+     }, [selectedQuestionsTotalScore, exam.total_score]);
+
      // فیلتر دانشجوها بر اساس جستجو
      const filteredStudents = useMemo(() => {
           if (!searchStudent.trim()) return students;
@@ -83,6 +95,12 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
           // بررسی تعداد سوالات انتخاب‌شده
           if (selectedQuestionIds.length !== exam.question_count) {
                toast.warning(`تعداد سوالات انتخاب‌شده باید دقیقاً ${exam.question_count} باشد. (در حال حاضر ${selectedQuestionIds.length} سوال انتخاب شده است)`);
+               return;
+          }
+
+          // ✅ بررسی مجموع نمرات سوالات انتخاب‌شده
+          if (!isTotalScoreMatched) {
+               toast.warning(`مجموع نمرات سوالات انتخاب‌شده (${selectedQuestionsTotalScore}) با نمره کل آزمون (${exam.total_score}) برابر نیست.`);
                return;
           }
 
@@ -293,8 +311,23 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
 
                                    <Divider sx={{ mb: 2 }} />
 
+                                   {/* ✅ نمایش مجموع نمرات سوالات انتخاب‌شده */}
+                                   <Box sx={{ mb: 2, p: 1.5, borderRadius: 1, bgcolor: isTotalScoreMatched ? 'success.light' : 'error.light' }}>
+                                        <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                                             مجموع نمرات سوالات انتخاب‌شده:
+                                             <strong>{selectedQuestionsTotalScore}</strong>
+                                             از
+                                             <strong>{exam.total_score}</strong>
+                                             {isTotalScoreMatched ? (
+                                                  <Chip label="✓ تطابق دارد" color="success" size="small" />
+                                             ) : (
+                                                  <Chip label="✗ تطابق ندارد" color="error" size="small" />
+                                             )}
+                                        </Typography>
+                                   </Box>
+
                                    {/* لیست سوالات */}
-                                   <Box sx={{ flexGrow: 1, overflow: 'auto', maxHeight: 400 }}>
+                                   <Box sx={{ flexGrow: 1, overflow: 'auto', maxHeight: 350 }}>
                                         {filteredQuestions.length === 0 ? (
                                              <Typography color="textSecondary" align="center" sx={{ py: 4 }}>
                                                   {searchQuestion ? 'سوالی با این مشخصات یافت نشد' : 'هیچ سوالی ایجاد نکرده‌اید'}
@@ -378,7 +411,7 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
                               variant="contained"
                               color="success"
                               onClick={handleSubmit}
-                              disabled={loading}
+                              disabled={loading || !isTotalScoreMatched || selectedQuestionIds.length !== exam.question_count}
                               startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
                               sx={{ minWidth: 150 }}
                          >

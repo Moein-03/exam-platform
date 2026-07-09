@@ -292,19 +292,36 @@ class ExamController extends Controller
     {
         $this->authorizeOwner($exam);
         $user = auth()->user();
-        
+
         $request->validate([
             'students' => 'array',
             'students.*' => 'exists:users,id',
             'questions' => 'array',
             'questions.*' => 'exists:questions,id',
         ]);
-        
+
         if ($user->isTeacher() && $exam->created_by == $user->id) {
+            $selectedQuestions = $request->questions ?? [];
+            $totalSelectedScore = Question::whereIn('id', $selectedQuestions)->sum('score');
+
+            if ($totalSelectedScore != $exam->total_score) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'error' => 'مجموع نمرات سوالات انتخاب‌شده باید برابر با نمره کل آزمون (' . $exam->total_score . ') باشد. مجموع فعلی: ' . $totalSelectedScore
+                    ], 422);
+                }
+                return redirect()->back()->withErrors([
+                    'questions' => 'مجموع نمرات سوالات انتخاب‌شده باید برابر با نمره کل آزمون (' . $exam->total_score . ') باشد. مجموع فعلی: ' . $totalSelectedScore
+                ])->withInput();
+            }
+
             $exam->students()->sync($request->students ?? []);
             $exam->questions()->sync($request->questions ?? []);
             $exam->update(['status' => 'فعال']);
-            
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'آزمون با موفقیت فعال شد و دانشجوها و سوالات به آن اضافه شدند.']);
+            }
             return redirect()->route('exams.show', $exam->slug)->with('success', 'آزمون با موفقیت فعال شد و دانشجوها و سوالات به آن اضافه شدند.');
         }
     }
