@@ -101,14 +101,14 @@ class ExamController extends Controller
     {
         $this->authorizeOwner($exam);
         $user = auth()->user();
-        //if ($user->isTeacher() && $exam->created_by == $user->id) {
+        if ($user->isTeacher() && $exam->created_by == $user->id) {
             $pageProps = [
                 'isTeacher' => true,
                 'exam' => $exam,
                 'auth' => ['user' => $user]
             ];
             return view('exams.edit', ['pageProps' => $pageProps]);
-        //}
+        }
         abort(403, 'شما اجازه ویرایش این آزمون را ندارید.');
     }
 
@@ -116,7 +116,8 @@ class ExamController extends Controller
     {
         $exam = Exam::where('slug', $slug)->firstOrFail();
         $this->authorizeOwner($exam);
-        
+        $user = auth()->user();
+
         if ($exam->status !== 'پیش‌نویس') {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -141,29 +142,33 @@ class ExamController extends Controller
             'status' => 'in:پیش‌نویس,فعال,بسته شده',
         ]);
 
-        $exam->update($validated);
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'slug' => $exam->slug,
-                'message' => 'آزمون با موفقیت به روز شد.',
-                'exam' => $exam
-            ], 200);
+        if ($user->isTeacher() && $exam->created_by == $user->id) {
+            $exam->update($validated);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'slug' => $exam->slug,
+                    'message' => 'آزمون با موفقیت به روز شد.',
+                    'exam' => $exam
+                ], 200);
+            }
+            return redirect()->route('exams.show', $exam->slug)->with('success', 'آزمون به روز شد.');
         }
-
-        return redirect()->route('exams.show', $exam->slug)->with('success', 'آزمون به روز شد.');
     }
 
     public function destroy($slug)
     {
         $exam = Exam::where('slug', $slug)->firstOrFail();
         $this->authorizeOwner($exam);
-        $exam->delete();
-        
-        if (request()->expectsJson()) {
-            return response()->json(['message' => 'آزمون حذف شد']);
+        $user = auth()->user();
+
+        if ($user->isTeacher() && $exam->created_by == $user->id) {
+            $exam->delete();
+            
+            if (request()->expectsJson()) {
+                return response()->json(['message' => 'آزمون حذف شد']);
+            }
+            return redirect()->route('exams.index')->with('success', 'آزمون حذف شد.');
         }
-        return redirect()->route('exams.index')->with('success', 'آزمون حذف شد.');
     }
 
     /* public function update(Request $request, Exam $exam)
