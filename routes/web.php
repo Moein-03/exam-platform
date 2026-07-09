@@ -42,6 +42,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/exams/{exam:slug}/edit', [ExamController::class, 'edit'])->name('exams.edit');
     Route::put('/exams/{exam:slug}', [ExamController::class, 'update'])->name('exams.update');
     Route::delete('/exams/{exam:slug}', [ExamController::class, 'destroy'])->name('exams.destroy');
+    Route::get('/exams/{exam:slug}/start', [ExamController::class, 'start'])->name('exams.take');
+    Route::post('/exams/{exam:slug}/submit', [ExamController::class, 'submit'])->name('exams.submit');
+    Route::post('/exams/{exam:slug}/end', [ExamController::class, 'endExam'])->name('exams.end');
+    //Route::get('/exams/{exam:slug}/results', [ExamController::class, 'results'])->name('exams.results');
+    Route::get('/exams/{exam:slug}/result', [ExamController::class, 'showResult'])->name('exams.result');
+    Route::get('/results', [ExamController::class, 'allResults'])->name('results');
+
 
     //Route::resource('exams', ExamController::class)->except(['manageExam', 'updateExamManagement']);;
     /* Route::resource('exams', ExamController::class)->except(['show', 'create', 'destroy', 'edit']);

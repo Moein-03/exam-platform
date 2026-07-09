@@ -33,6 +33,16 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
         window.location.href = `/exams?page=${value}`;
     };
 
+    const getStatusColor = (status) => {
+        const colors = {
+            'پیش‌نویس': 'warning',
+            'فعال': 'info',
+            'درحال برگزاری': 'success',
+            'اتمام آزمون': 'error'
+        };
+        return colors[status] || 'default';
+    };
+
     return (
         <AuthenticatedLayout user={auth.user} header="مدیریت آزمون‌ها" isTeacher={isTeacher}>
             <Box sx={{ mb: 2, direction: "rtl" }}>
@@ -68,7 +78,7 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
                                 <TableCell>
                                     <Chip
                                         label={exam.status}
-                                        color={exam.status === 'فعال' ? 'success' : 'warning'}
+                                        color={getStatusColor(exam.status)}
                                     />
                                 </TableCell>
                                 <TableCell>
@@ -102,7 +112,7 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
                                         </>
                                     )}
 
-                                    {!isTeacher && exam.status !== 'پیش‌نویس' && (
+                                    {!isTeacher && exam.status === 'درحال برگزاری' && (
                                         <Button
                                             size="small"
                                             color="success"
@@ -110,6 +120,17 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
                                             component="a"
                                         >
                                             شروع آزمون
+                                        </Button>
+                                    )}
+
+                                    {!isTeacher && exam.status === 'اتمام آزمون' && (
+                                        <Button
+                                            size="small"
+                                            color="success"
+                                            href={`/exams/${exam.slug}/result`}
+                                            component="a"
+                                        >
+                                            مشاهده نتیجه
                                         </Button>
                                     )}
                                 </TableCell>

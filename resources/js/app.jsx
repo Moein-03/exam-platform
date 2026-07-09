@@ -11,11 +11,12 @@ import ReportsIndex from './Pages/ReportsIndex';
 import CreateExam from './Pages/Exams/CreateExam';
 
 import ExamsIndex from './Pages/Exams/ExamsIndex';
-//import ExamResults from './Pages/Exams/ExamResults';
 import ShowExam from './Pages/Exams/ShowExam';
 import EditExam from './Pages/Exams/EditExam';
 import ManageExam from './Pages/Exams/ManageExam';
 import TakeExam from './Pages/Exams/TakeExam';
+import ExamResult from './Pages/Exams/ExamResult';
+import ExamResults from './Pages/ExamResults';
 
 import QuestionsIndex from './Pages/Questions/QuestionsIndex';
 import CreateQuestion from './Pages/Questions/CreateQuestion';
@@ -37,14 +38,15 @@ const components = {
      ReportsIndex,
      CreateExam,
      ExamsIndex,
-     //ExamResults,
+     ExamResult,
      ShowExam,
      EditExam,
      TakeExam,
      QuestionsIndex,
      CreateQuestion,
      EditQuestion,
-     ManageExam
+     ManageExam,
+     ExamResults
 };
 
 const pageName = window.pageName || 'HomePage';

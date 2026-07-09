@@ -37,30 +37,24 @@ const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
         setAnswers(prev => ({ ...prev, [questionId]: value }));
     };
 
-    // 🟢 تابع handleTimeout - وقتی زمان به پایان می‌رسد
     const handleTimeout = async () => {
         if (submitting) return;
         setSubmitting(true);
         
         try {
-            // ۱. پایان آزمون (وضعیت به "اتمام آزمون" تغییر می‌کند)
-            await axios.post(`/exams/${exam.slug}/end`);
-            
-            // ۲. اگر پاسخی وجود دارد، ثبت شود
             if (Object.keys(answers).length > 0) {
                 await axios.post(`/exams/${exam.slug}/submit`, { answers });
             }
-            
             toast.info('زمان آزمون به پایان رسید.');
             window.location.href = `/exams/${exam.slug}/results`;
         } catch (error) {
-            toast.error('خطا در پایان آزمون');
+            const msg = error.response?.data?.error || 'خطا در پایان آزمون';
+            toast.error(msg);
             console.error(error);
             setSubmitting(false);
         }
     };
 
-    // 🟢 ثبت پاسخ‌ها توسط دانشجو (با پاپ‌آپ تأیید)
     const handleSubmit = async () => {
         if (!confirm('آیا از اتمام آزمون و ثبت پاسخ‌ها اطمینان دارید؟')) return;
         
@@ -80,16 +74,13 @@ const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
         }
 
         try {
-            // ۱. ثبت پاسخ‌ها
+            // فقط submit را صدا بزن (خودش وضعیت را به اتمام آزمون تغییر می‌دهد)
             await axios.post(`/exams/${exam.slug}/submit`, { answers });
-            
-            // ۲. پایان آزمون (وضعیت به "اتمام آزمون")
-            await axios.post(`/exams/${exam.slug}/end`);
-            
             toast.success('پاسخ‌ها با موفقیت ثبت شد و آزمون به پایان رسید.');
-            window.location.href = `/exams/${exam.slug}/results`;
+            window.location.href = `/exams/${exam.slug}/result`;
         } catch (error) {
-            toast.error('خطا در ثبت پاسخ‌ها');
+            const msg = error.response?.data?.error || 'خطا در ثبت پاسخ‌ها';
+            toast.error(msg);
             console.error(error);
             setSubmitting(false);
         }
@@ -115,7 +106,7 @@ const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
 
     return (
         <AuthenticatedLayout user={auth.user} header={`شرکت در آزمون: ${exam.title}`}>
-            <Box sx={{ p: 3 }}>
+            <Box sx={{ p: 3, direction: 'rtl' }}>
                 <Paper sx={{ p: 3, mb: 3 }}>
                     <Grid container spacing={2} alignItems="center">
                         <Grid item xs={12} md={8}>
@@ -128,7 +119,7 @@ const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
                             </Typography>
                         </Grid>
                         <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                            {/* ✅ تابع handleTimeout به Timer پاس داده می‌شود */}
+                            {/* تابع handleTimeout به Timer پاس داده می‌شود */}
                             <Timer
                                 initialSeconds={exam.duration_min * 60}
                                 onTimeout={handleTimeout}

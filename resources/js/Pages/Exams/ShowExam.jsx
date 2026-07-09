@@ -17,7 +17,6 @@ const ShowExam = ({ auth, exam }) => {
 
     const isOwner = exam?.created_by === auth.user.id;
 
-    // اصلاح شده: فقط بررسی وضعیت کافی است، زمان را بک‌اند چک کند
     const canConduct = () => {
         return isOwner && exam?.status === 'فعال';
     };
@@ -30,7 +29,7 @@ const ShowExam = ({ auth, exam }) => {
 
     const formatTime = (timeStr) => {
         if (!timeStr) return '';
-        return timeStr.substring(0, 5); // HH:mm
+        return timeStr.substring(0, 5);
     };
 
     const handleConduct = async () => {
@@ -41,11 +40,9 @@ const ShowExam = ({ auth, exam }) => {
             const response = await axios.post(`/exams/${exam.slug}/conduct`);
             toast.success(response.data.message || 'آزمون با موفقیت برگزار شد.');
             
-            // به‌روزرسانی وضعیت در فرانت‌اند
-            exam.status = 'درحال برگزاری'; // mutate مستقیم (برای سادگی)
-            // یا اگر از state استفاده می‌کنید: setExam(prev => ({...prev, status: 'درحال برگزاری'}))
+            exam.status = 'درحال برگزاری'; // mutate مستقیم (برای سادگی)     
             
-            window.location.reload(); // بهترین راه برای سادگی در حال حاضر
+            window.location.reload();
         } catch (error) {
             const msg = error.response?.data?.error || 'خطا در برگزاری آزمون';
             toast.error(msg);
@@ -181,7 +178,26 @@ const ShowExam = ({ auth, exam }) => {
                                 )}
 
                                 {/* بقیه دکمه‌های دانشجو ... */}
-
+                                {auth?.user.role === "student" && exam.status === 'درحال برگزاری' && (
+                                    <Button
+                                        size="small"
+                                        color="success"
+                                        href={`/exams/${exam.slug}/start`}
+                                        component="a"
+                                    >
+                                        شروع آزمون
+                                    </Button>
+                                )}
+                                {auth?.user.role === "student" && exam.status === 'اتمام آزمون' && (
+                                        <Button
+                                            size="small"
+                                            color="success"
+                                            href={`/exams/${exam.slug}/result`}
+                                            component="a"
+                                        >
+                                            مشاهده نتیجه
+                                        </Button>
+                                    )}
                                 <Button
                                     variant="outlined"
                                     href="/exams"

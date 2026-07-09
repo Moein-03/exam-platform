@@ -29,7 +29,7 @@ class ExamController extends Controller
                     $query->whereIn('exam_users.status', ['in_progress', 'finished'])
                         ->orWhere('exams.status', '!=', 'پیش‌نویس');
                 })
-                ->orderBy('exam_date', 'desc')
+                ->orderBy('created_at', 'desc')
                 ->paginate(10);
             
             $pageProps = [
@@ -406,7 +406,7 @@ class ExamController extends Controller
         $diffSeconds = $now->diffInSeconds($examDateTime, false);
         
         // اگر بیش از ۵ دقیقه (۳۰۰ ثانیه) از زمان آزمون گذشته باشد → خطا
-        if ($diffSeconds > 300) {
+        if ($diffSeconds > 500) {
             return response()->json([
                 'error' => 'زمان برگزاری آزمون گذشته است. زمان فعلی: ' . $now->format('Y-m-d H:i') .
                         ' | زمان آزمون: ' . $examDateTime->format('Y-m-d H:i')
@@ -446,23 +446,6 @@ class ExamController extends Controller
             'status' => 'درحال برگزاری'
         ]);
     } */
-    
-
-    /**
-     * پایان آزمون (توسط تایمر یا دانشجو)
-     */
-    public function endExam($slug)
-    {
-        $exam = Exam::where('slug', $slug)->firstOrFail();
-        $this->authorizeOwner($exam);
-        
-        if ($exam->status === 'درحال برگزاری') {
-            $exam->update(['status' => 'اتمام آزمون']);
-            return response()->json(['message' => 'آزمون به پایان رسید.', 'status' => 'اتمام آزمون']);
-        }
-        
-        return response()->json(['message' => 'وضعیت آزمون برای پایان مناسب نیست.'], 400);
-    }
 
     /**
      * شروع آزمون توسط دانشجو
@@ -514,6 +497,57 @@ class ExamController extends Controller
         $user = auth()->user();
         $examUser = $exam->students()->where('user_id', $user->id)->first();
         if (!$examUser || $examUser->pivot->status === 'finished') {
+            return response()->json(['error' => 'شما مجاز به ارسال پاسخ نیستید.'], 403);
+        }
+
+        $request->validate([
+            'answers' => 'required|array',
+            'answers.*' => 'required|string'
+        ]);
+
+        foreach ($request->answers as $questionId => $selectedAnswer) {
+            $question = Question::find($questionId);
+            if (!$question) continue;
+            
+            $isCorrect = $question->isAnswerCorrect($selectedAnswer);
+            Answer::updateOrCreate(
+                [
+                    'exam_id' => $exam->id,
+                    'user_id' => $user->id,
+                    'question_id' => $questionId
+                ],
+                [
+                    'selected_answer' => $selectedAnswer,
+                    'is_correct' => $isCorrect,
+                    'time_spent_seconds' => $request->input("time_$questionId", 0)
+                ]
+            );
+        }
+
+        // محاسبه نمره
+        $totalScore = Answer::where('exam_id', $exam->id)
+            ->where('user_id', $user->id)
+            ->where('is_correct', true)
+            ->join('questions', 'answers.question_id', '=', 'questions.id')
+            ->sum('questions.score');
+
+        $exam->students()->updateExistingPivot($user->id, [
+            'finished_at' => now(),
+            'score' => $totalScore ?? 0,
+            'status' => 'finished'
+        ]);
+
+        if ($exam->status === 'درحال برگزاری') {
+            $exam->update(['status' => 'اتمام آزمون']);
+        }
+
+        return response()->json(['message' => 'پاسخ‌های شما ثبت شد.']);
+    }
+    /* public function submit(Request $request, Exam $exam)
+    {
+        $user = auth()->user();
+        $examUser = $exam->students()->where('user_id', $user->id)->first();
+        if (!$examUser || $examUser->pivot->status === 'finished') {
             abort(403, 'شما مجاز به ارسال پاسخ نیستید.');
         }
 
@@ -554,9 +588,41 @@ class ExamController extends Controller
         }
 
         return redirect()->route('exams.results', $exam->slug)->with('success', 'پاسخ‌های شما ثبت شد. نمره شما محاسبه گردید.');
-    }
+    } */
 
-    public function results(Exam $exam)
+    /**
+     * پایان آزمون (توسط تایمر یا دانشجو)
+     */
+    public function endExam($slug)
+    {
+        $exam = Exam::where('slug', $slug)->firstOrFail();
+        $user = auth()->user();
+        
+        if (!$user->isTeacher() && !$exam->students()->where('user_id', $user->id)->exists()) {
+            return response()->json(['error' => 'شما مجاز نیستید.'], 403);
+        }
+        
+        if ($exam->status === 'درحال برگزاری') {
+            $exam->update(['status' => 'اتمام آزمون']);
+            return response()->json(['message' => 'آزمون به پایان رسید.', 'status' => 'اتمام آزمون']);
+        }
+        
+        return response()->json(['message' => 'وضعیت آزمون برای پایان مناسب نیست.'], 400);
+    }
+    /* public function endExam($slug)
+    {
+        $exam = Exam::where('slug', $slug)->firstOrFail();
+        $this->authorizeOwner($exam);
+        
+        if ($exam->status === 'درحال برگزاری') {
+            $exam->update(['status' => 'اتمام آزمون']);
+            return response()->json(['message' => 'آزمون به پایان رسید.', 'status' => 'اتمام آزمون']);
+        }
+        
+        return response()->json(['message' => 'وضعیت آزمون برای پایان مناسب نیست.'], 400);
+    } */
+
+   /*  public function results(Exam $exam)
     {
         $user = auth()->user();
         $examUser = $exam->students()->where('user_id', $user->id)->first();
@@ -574,6 +640,80 @@ class ExamController extends Controller
             'auth' => ['user' => $user]
         ];
         return view('exams.results', ['pageProps' => $pageProps]);
+    } */
+
+    public function showResult($slug)
+    {
+        $exam = Exam::where('slug', $slug)->firstOrFail();
+        $user = auth()->user();
+        
+        // دانشجو: فقط اگر در این آزمون شرکت کرده و به پایان رسانده باشد
+        if ($user->isStudent()) {
+            $examUser = $exam->students()->where('user_id', $user->id)->first();
+            if (!$examUser || $examUser->pivot->status !== 'finished') {
+                abort(403, 'شما به این نتیجه دسترسی ندارید.');
+            }
+            $answers = Answer::where('exam_id', $exam->id)->where('user_id', $user->id)->with('question')->get();
+            $score = $examUser->pivot->score ?? 0;
+
+            $pageProps = [
+                'isTeacher' => false,
+                'exam' => $exam,
+                'answers' => $answers,
+                'score' => $score,
+                'auth' => ['user' => $user]
+            ];
+        }
+        // استاد: فقط اگر مالک آزمون باشد
+        elseif ($user->isTeacher()) {
+            if ($exam->created_by !== $user->id) {
+                abort(403, 'شما به این نتیجه دسترسی ندارید.');
+            }
+            // برای استاد، تمام پاسخ‌های دانشجوها را می‌گیریم (می‌توانیم همه را نمایش دهیم)
+            $answers = Answer::where('exam_id', $exam->id)->with('question', 'user')->get();
+            $score = null; // استاد نمره کلی ندارد
+
+            $pageProps = [
+                'isTeacher' => true,
+                'exam' => $exam,
+                'answers' => $answers,
+                'score' => $score,
+                'auth' => ['user' => $user]
+            ];
+        } else {
+            abort(403);
+            $pageProps = [];
+        }
+        
+        return view('exams.result', ['pageProps' => $pageProps]);
+    }
+
+    /**
+     * نمایش همه نتایج آزمون‌های استاد (فقط برای داشبورد)
+     */
+    public function allResults()
+    {
+        $user = auth()->user();
+        if (!$user->isTeacher()) {
+            abort(403, 'فقط استادان دسترسی دارند.');
+        }
+        
+        // تمام آزمون‌های این استاد به همراه دانشجوهایی که شرکت کرده‌اند
+        $exams = Exam::where('created_by', $user->id)
+            ->with(['students' => function($query) {
+                $query->wherePivot('status', 'finished')
+                    ->withPivot('score', 'finished_at');
+            }])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        $pageProps = [
+            'isTeacher' => true,
+            'exams' => $exams,
+            'auth' => ['user' => $user]
+        ];
+        
+        return view('results.index', ['pageProps' => $pageProps]);
     }
 
     private function authorizeTeacher()
