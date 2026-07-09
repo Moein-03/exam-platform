@@ -9,6 +9,8 @@ use App\Models\Answer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
+use Carbon\Carbon;
+
 class ExamController extends Controller
 {
     public function index()
@@ -393,34 +395,62 @@ class ExamController extends Controller
         $exam = Exam::where('slug', $slug)->firstOrFail();
         $this->authorizeOwner($exam);
         
-        // فقط آزمون‌های با وضعیت 'فعال' قابل برگزاری هستند
         if ($exam->status !== 'فعال') {
-            if (request()->expectsJson()) {
-                return response()->json(['error' => 'فقط آزمون‌های فعال قابل برگزاری هستند.'], 403);
-            }
-            return redirect()->back()->with('error', 'فقط آزمون‌های فعال قابل برگزاری هستند.');
+            return response()->json(['error' => 'فقط آزمون‌های فعال قابل برگزاری هستند.'], 403);
         }
         
-        // بررسی تاریخ و ساعت فعلی با تاریخ و ساعت آزمون (با دقت دقیقه)
-        $now = Carbon::now();
-        $examDateTime = Carbon::parse($exam->exam_date . ' ' . $exam->start_time);
+        // استفاده از منطقه زمانی محلی
+        $now = Carbon::now('Asia/Tehran');
+        $examDateTime = Carbon::parse($exam->exam_date . ' ' . $exam->start_time, 'Asia/Tehran');
         
-        if ($now->format('Y-m-d H:i') !== $examDateTime->format('Y-m-d H:i')) {
-            $errorMsg = 'زمان برگزاری آزمون فرا نرسیده است. زمان آزمون: ' . $examDateTime->format('Y-m-d H:i');
-            if (request()->expectsJson()) {
-                return response()->json(['error' => $errorMsg], 403);
-            }
-            return redirect()->back()->with('error', $errorMsg);
+        // اختلاف زمانی به ثانیه
+        $diffInSeconds = $now->diffInSeconds($examDateTime, false);
+        
+        // اگر اختلاف کمتر از 60 ثانیه باشد، اجازه برگزاری بده
+        if (abs($diffInSeconds) > 60) {
+            return response()->json([
+                'error' => 'زمان برگزاری آزمون فرا نرسیده است. زمان فعلی: ' . $now->format('Y-m-d H:i') . 
+                        ' | زمان آزمون: ' . $examDateTime->format('Y-m-d H:i')
+            ], 403);
         }
         
-        // تغییر وضعیت به 'درحال برگزاری'
         $exam->update(['status' => 'درحال برگزاری']);
         
-        if (request()->expectsJson()) {
-            return response()->json(['message' => 'آزمون با موفقیت برگزار شد.', 'status' => 'درحال برگزاری']);
-        }
-        return redirect()->route('exams.show', $exam->slug)->with('success', 'آزمون با موفقیت برگزار شد.');
+        return response()->json([
+            'message' => 'آزمون با موفقیت برگزار شد.',
+            'status' => 'درحال برگزاری'
+        ]);
     }
+    /* public function conductExam($slug)
+    {
+        $exam = Exam::where('slug', $slug)->firstOrFail();
+        $this->authorizeOwner($exam);
+        
+        if ($exam->status !== 'فعال') {
+            return response()->json(['error' => 'فقط آزمون‌های فعال قابل برگزاری هستند.'], 403);
+        }
+        
+        // زمان فعلی و زمان آزمون را با منطقه زمانی یکسان (UTC) مقایسه کنید
+        $now = Carbon::now('UTC');
+        $examDateTime = Carbon::parse($exam->exam_date . ' ' . $exam->start_time, 'UTC');
+        
+        // اختلاف زمانی به ثانیه
+        $diffInSeconds = $now->diffInSeconds($examDateTime, false);
+        
+        // اگر اختلاف کمتر از 60 ثانیه باشد، اجازه برگزاری بده
+        if (abs($diffInSeconds) > 60) {
+            return response()->json([
+                'error' => 'زمان برگزاری آزمون فرا نرسیده است. زمان آزمون: ' . $examDateTime->format('Y-m-d H:i')
+            ], 403);
+        }
+        
+        $exam->update(['status' => 'درحال برگزاری']);
+        
+        return response()->json([
+            'message' => 'آزمون با موفقیت برگزار شد.',
+            'status' => 'درحال برگزاری'
+        ]);
+    } */
 
     /**
      * پایان آزمون (توسط تایمر یا دانشجو)

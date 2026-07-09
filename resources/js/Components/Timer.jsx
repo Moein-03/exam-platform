@@ -38,7 +38,7 @@ const Timer = ({ initialSeconds, onTimeout, autoSubmit = true }) => {
                 intervalRef.current = null;
             }
             if (autoSubmit && onTimeoutRef.current) {
-                onTimeoutRef.current();
+                onTimeoutRef.current(); // ← اینجا تابع onTimeout صدا زده می‌شود
             }
             return;
         }

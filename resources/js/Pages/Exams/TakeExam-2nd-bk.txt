@@ -17,6 +17,7 @@ const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
     const [loading, setLoading] = useState(!initialExam);
     const [submitting, setSubmitting] = useState(false);
 
+    // بارگذاری دیتا اگه از props نیومده باشه
     useEffect(() => {
         if (!initialExam) {
             const slug = window.location.pathname.split('/').slice(-2, -1)[0];
@@ -37,16 +38,16 @@ const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
         setAnswers(prev => ({ ...prev, [questionId]: value }));
     };
 
-    // 🟢 تابع handleTimeout - وقتی زمان به پایان می‌رسد
+    // پایان آزمون توسط تایمر
     const handleTimeout = async () => {
         if (submitting) return;
         setSubmitting(true);
         
         try {
-            // ۱. پایان آزمون (وضعیت به "اتمام آزمون" تغییر می‌کند)
+            // پایان آزمون توسط تایمر
             await axios.post(`/exams/${exam.slug}/end`);
             
-            // ۲. اگر پاسخی وجود دارد، ثبت شود
+            // ثبت خودکار پاسخ‌های موجود (اگر دکمه ارسال نزده)
             if (Object.keys(answers).length > 0) {
                 await axios.post(`/exams/${exam.slug}/submit`, { answers });
             }
@@ -60,8 +61,8 @@ const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
         }
     };
 
-    // 🟢 ثبت پاسخ‌ها توسط دانشجو (با پاپ‌آپ تأیید)
     const handleSubmit = async () => {
+        // پاپ‌آپ تأیید اتمام
         if (!confirm('آیا از اتمام آزمون و ثبت پاسخ‌ها اطمینان دارید؟')) return;
         
         if (submitting) return;
@@ -80,13 +81,8 @@ const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
         }
 
         try {
-            // ۱. ثبت پاسخ‌ها
             await axios.post(`/exams/${exam.slug}/submit`, { answers });
-            
-            // ۲. پایان آزمون (وضعیت به "اتمام آزمون")
-            await axios.post(`/exams/${exam.slug}/end`);
-            
-            toast.success('پاسخ‌ها با موفقیت ثبت شد و آزمون به پایان رسید.');
+            toast.success('پاسخ‌ها با موفقیت ثبت شد');
             window.location.href = `/exams/${exam.slug}/results`;
         } catch (error) {
             toast.error('خطا در ثبت پاسخ‌ها');
@@ -116,6 +112,7 @@ const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
     return (
         <AuthenticatedLayout user={auth.user} header={`شرکت در آزمون: ${exam.title}`}>
             <Box sx={{ p: 3 }}>
+                {/* هدر با تایمر */}
                 <Paper sx={{ p: 3, mb: 3 }}>
                     <Grid container spacing={2} alignItems="center">
                         <Grid item xs={12} md={8}>
@@ -128,7 +125,6 @@ const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
                             </Typography>
                         </Grid>
                         <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                            {/* ✅ تابع handleTimeout به Timer پاس داده می‌شود */}
                             <Timer
                                 initialSeconds={exam.duration_min * 60}
                                 onTimeout={handleTimeout}
@@ -138,6 +134,7 @@ const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
                     </Grid>
                 </Paper>
 
+                {/* سوالات */}
                 <Paper sx={{ p: 3 }}>
                     <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
                         {questions.map((q, index) => (
