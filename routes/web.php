@@ -45,8 +45,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/exams/{exam:slug}/start', [ExamController::class, 'start'])->name('exams.take');
     Route::post('/exams/{exam:slug}/submit', [ExamController::class, 'submit'])->name('exams.submit');
     Route::post('/exams/{exam:slug}/end', [ExamController::class, 'endExam'])->name('exams.end');
-    //Route::get('/exams/{exam:slug}/results', [ExamController::class, 'results'])->name('exams.results');
     Route::get('/exams/{exam:slug}/result', [ExamController::class, 'showResult'])->name('exams.result');
+    Route::get('/my-results', [ExamController::class, 'myResults'])->name('exams.my_results');
     Route::get('/results', [ExamController::class, 'allResults'])->name('results');
 
 

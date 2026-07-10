@@ -18,24 +18,26 @@ import ListItemText from '@mui/material/ListItemText';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import QuizIcon from '@mui/icons-material/Quiz';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import LogoutIcon from '@mui/icons-material/Logout';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useMediaQuery } from '@mui/material';
 
 const drawerWidth = 240;
 
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-     ({ theme, open }) => ({
+const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' && prop !== 'isMobile' })(
+     ({ theme, open, isMobile }) => ({
           flexGrow: 1,
           padding: theme.spacing(3),
-          transition: theme.transitions.create('margin', {
+          transition: isMobile ? 'none' : theme.transitions.create('margin', {
                easing: theme.transitions.easing.sharp,
                duration: theme.transitions.duration.leavingScreen
           }),
-          marginLeft: `-${drawerWidth}px`,
-          ...(open && {
+          marginLeft: isMobile ? 0 : `-${drawerWidth}px`,
+          ...(!isMobile && open && {
                transition: theme.transitions.create('margin', {
                     easing: theme.transitions.easing.easeOut,
                     duration: theme.transitions.duration.enteringScreen
@@ -46,13 +48,13 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
 );
 
 const AppBarStyled = styled(AppBar, {
-     shouldForwardProp: (prop) => prop !== 'open'
-})(({ theme, open }) => ({
-     transition: theme.transitions.create(['margin', 'width'], {
+     shouldForwardProp: (prop) => prop !== 'open' && prop !== 'isMobile'
+})(({ theme, open, isMobile }) => ({
+     transition: isMobile ? 'none' : theme.transitions.create(['margin', 'width'], {
           easing: theme.transitions.easing.sharp,
           duration: theme.transitions.duration.leavingScreen,
      }),
-     ...(open && {
+     ...(!isMobile && open && {
           width: `calc(100% - ${drawerWidth}px)`,
           marginLeft: `${drawerWidth}px`,
           transition: theme.transitions.create(['margin', 'width'], {
@@ -72,7 +74,13 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 const AuthenticatedLayout = ({ user, children, header, isTeacher }) => {
      const theme = useTheme();
-     const [open, setOpen] = React.useState(true);
+     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+     const [open, setOpen] = React.useState(!isMobile);
+
+     // وقتی سایز صفحه تغییر می‌کند، وضعیت دراور را به‌روز کن
+     React.useEffect(() => {
+          setOpen(!isMobile);
+     }, [isMobile]);
 
      const handleDrawerOpen = () => setOpen(true);
      const handleDrawerClose = () => setOpen(false);
@@ -80,7 +88,6 @@ const AuthenticatedLayout = ({ user, children, header, isTeacher }) => {
      const handleLogout = async () => {
           try {
                await axios.get('/sanctum/csrf-cookie', { withCredentials: true });
-               
                await axios.post('/logout', {}, {
                     withCredentials: true,
                     headers: {
@@ -88,7 +95,6 @@ const AuthenticatedLayout = ({ user, children, header, isTeacher }) => {
                          'X-Requested-With': 'XMLHttpRequest'
                     }
                });
-
                toast.success('با موفقیت خارج شدید');
                setTimeout(() => {
                     window.location.href = '/login';
@@ -103,37 +109,39 @@ const AuthenticatedLayout = ({ user, children, header, isTeacher }) => {
           { text: 'داشبورد', icon: <DashboardIcon />, path: '/dashboard' },
           { text: 'آزمون‌ها', icon: <QuizIcon />, path: '/exams' },
           { text: 'سوالات', icon: <QuestionAnswerIcon />, path: '/questions' },
+          { text: 'نتایج', icon: <AssessmentIcon />, path: '/results' }
      ];
 
      const StudentMenuItems = [
           { text: 'داشبورد', icon: <DashboardIcon />, path: '/dashboard' },
-          { text: 'آزمون‌ها', icon: <QuizIcon />, path: '/exams' }
+          { text: 'آزمون‌ها', icon: <QuizIcon />, path: '/exams' },
+          { text: 'نتایج من', icon: <AssessmentIcon />, path: '/my-results' }
      ];
 
      return (
           <Box sx={{ display: 'flex', direction: 'ltr' }}>
                <ToastContainer position="top-right" rtl />
 
-               <AppBarStyled position="fixed" open={open}>
+               <AppBarStyled position="fixed" open={open} isMobile={isMobile}>
                     <Toolbar>
                          <IconButton
                               color="inherit"
                               aria-label="open drawer"
                               onClick={handleDrawerOpen}
                               edge="start"
-                              sx={{ mr: 2, ...(open && { display: 'none' }) }}
+                              sx={{ mr: 2, ...(open && !isMobile && { display: 'none' }) }}
                          >
-                              <MenuIcon />
+                         <MenuIcon />
                          </IconButton>
-                         <Typography variant="h6" noWrap component="div">
+                         <Typography variant="h6" noWrap component="div" sx={{ fontSize: { xs: '0.9rem', sm: '1.1rem', md: '1.25rem' } }}>
                               {header || 'پلتفرم آزمون آنلاین'}
                          </Typography>
                          <Box sx={{ flexGrow: 1 }} />
-                         <Typography variant="body2" sx={{ ml: 2 }}>
+                         <Typography variant="body2" sx={{ ml: 2, display: { xs: 'none', sm: 'block' } }}>
                               {user?.name}
                          </Typography>
                          <IconButton color="inherit" onClick={handleLogout}>
-                              <LogoutIcon />
+                         <LogoutIcon />
                          </IconButton>
                     </Toolbar>
                </AppBarStyled>
@@ -143,41 +151,41 @@ const AuthenticatedLayout = ({ user, children, header, isTeacher }) => {
                          width: drawerWidth,
                          flexShrink: 0,
                          '& .MuiDrawer-paper': {
-                              width: drawerWidth,
-                              boxSizing: 'border-box'
+                         width: drawerWidth,
+                         boxSizing: 'border-box'
                          }
                     }}
-                    variant="persistent"
+                    variant={isMobile ? 'temporary' : 'persistent'}
                     anchor="left"
                     open={open}
+                    onClose={isMobile ? handleDrawerClose : undefined}
                >
                     <DrawerHeader>
                          <IconButton onClick={handleDrawerClose}>
-                              {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                         {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
                          </IconButton>
                     </DrawerHeader>
                     <Divider />
                     <List>
                          {isTeacher ? TeacherMenuItems.map((item) => (
-                              <ListItem key={item.text} disablePadding>
-                                   <ListItemButton component="a" href={item.path}>
-                                        <ListItemIcon>{item.icon}</ListItemIcon>
-                                        <ListItemText primary={item.text} />
-                                   </ListItemButton>
-                              </ListItem>
-
+                         <ListItem key={item.text} disablePadding>
+                              <ListItemButton component="a" href={item.path}>
+                                   <ListItemIcon>{item.icon}</ListItemIcon>
+                                   <ListItemText primary={item.text} />
+                              </ListItemButton>
+                         </ListItem>
                          )) : StudentMenuItems.map((item) => (
-                              <ListItem key={item.text} disablePadding>
-                                   <ListItemButton component="a" href={item.path}>
-                                        <ListItemIcon>{item.icon}</ListItemIcon>
-                                        <ListItemText primary={item.text} />
-                                   </ListItemButton>
-                              </ListItem>
+                         <ListItem key={item.text} disablePadding>
+                              <ListItemButton component="a" href={item.path}>
+                                   <ListItemIcon>{item.icon}</ListItemIcon>
+                                   <ListItemText primary={item.text} />
+                              </ListItemButton>
+                         </ListItem>
                          ))}
                     </List>
                </Drawer>
 
-               <Main open={open}>
+               <Main open={open} isMobile={isMobile}>
                     <DrawerHeader />
                     {children}
                </Main>

@@ -5,7 +5,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import {
     Box, Button, Table, TableBody, TableCell,
     TableContainer, TableHead, TableRow, Paper,
-    Chip, Pagination
+    Chip, Pagination, useMediaQuery, useTheme
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -14,6 +14,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 const ExamsIndex = ({ isTeacher, exams, auth }) => {
     const [page, setPage] = useState(exams.current_page);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const handleDelete = async (slug) => {
         if (!confirm('آیا از حذف این آزمون اطمینان دارید؟')) return;
@@ -43,6 +45,9 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
         return colors[status] || 'default';
     };
 
+    // اندازه دکمه‌ها بر اساس دستگاه
+    const buttonSize = isMobile ? 'small' : 'medium';
+
     return (
         <AuthenticatedLayout user={auth.user} header="مدیریت آزمون‌ها" isTeacher={isTeacher}>
             <Box sx={{ mb: 2, direction: "rtl" }}>
@@ -52,14 +57,15 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
                         startIcon={<AddIcon />}
                         href="/exams/create"
                         component="a"
+                        size={buttonSize}
                     >
                         آزمون جدید
                     </Button>
                 )}
             </Box>
 
-            <TableContainer component={Paper}>
-                <Table sx={{ direction: 'rtl' }}>
+            <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+                <Table sx={{ minWidth: { xs: 600, sm: '100%' }, direction: 'rtl' }}>
                     <TableHead>
                         <TableRow>
                             <TableCell>عنوان</TableCell>
@@ -79,60 +85,63 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
                                     <Chip
                                         label={exam.status}
                                         color={getStatusColor(exam.status)}
+                                        size={isMobile ? 'small' : 'medium'}
                                     />
                                 </TableCell>
                                 <TableCell>
-                                    <Button
-                                        size="small"
-                                        startIcon={<VisibilityIcon sx={{marginLeft: '5px'}}/>}
-                                        href={`/exams/${exam.slug}`}
-                                        component="a"
-                                    >
-                                        مشاهده
-                                    </Button>
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                        <Button
+                                            size={buttonSize}
+                                            startIcon={<VisibilityIcon sx={{marginLeft: '5px'}}/>}
+                                            href={`/exams/${exam.slug}`}
+                                            component="a"
+                                        >
+                                            مشاهده
+                                        </Button>
 
-                                    {isTeacher && exam.created_by === auth.user.id && (
-                                        <>
+                                        {isTeacher && exam.created_by === auth.user.id && (
+                                            <>
+                                                <Button
+                                                    size={buttonSize}
+                                                    startIcon={<EditIcon sx={{marginLeft: '5px'}}/>}
+                                                    href={`/exams/${exam.slug}/edit`}
+                                                    component="a"
+                                                >
+                                                    ویرایش
+                                                </Button>
+                                                <Button
+                                                    size={buttonSize}
+                                                    startIcon={<DeleteIcon sx={{marginLeft: '5px'}}/>}
+                                                    onClick={() => handleDelete(exam.slug)}
+                                                    color="error"
+                                                >
+                                                    حذف
+                                                </Button>
+                                            </>
+                                        )}
+
+                                        {!isTeacher && exam.status === 'درحال برگزاری' && (
                                             <Button
-                                                size="small"
-                                                startIcon={<EditIcon sx={{marginLeft: '5px'}}/>}
-                                                href={`/exams/${exam.slug}/edit`}
+                                                size={buttonSize}
+                                                color="success"
+                                                href={`/exams/${exam.slug}/start`}
                                                 component="a"
                                             >
-                                                ویرایش
+                                                شروع آزمون
                                             </Button>
+                                        )}
+
+                                        {!isTeacher && exam.status === 'اتمام آزمون' && (
                                             <Button
-                                                size="small"
-                                                startIcon={<DeleteIcon sx={{marginLeft: '5px'}}/>}
-                                                onClick={() => handleDelete(exam.slug)}
-                                                color="error"
+                                                size={buttonSize}
+                                                color="success"
+                                                href={`/exams/${exam.slug}/result`}
+                                                component="a"
                                             >
-                                                حذف
+                                                مشاهده نتیجه
                                             </Button>
-                                        </>
-                                    )}
-
-                                    {!isTeacher && exam.status === 'درحال برگزاری' && (
-                                        <Button
-                                            size="small"
-                                            color="success"
-                                            href={`/exams/${exam.slug}/start`}
-                                            component="a"
-                                        >
-                                            شروع آزمون
-                                        </Button>
-                                    )}
-
-                                    {!isTeacher && exam.status === 'اتمام آزمون' && (
-                                        <Button
-                                            size="small"
-                                            color="success"
-                                            href={`/exams/${exam.slug}/result`}
-                                            component="a"
-                                        >
-                                            مشاهده نتیجه
-                                        </Button>
-                                    )}
+                                        )}
+                                    </Box>
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -145,6 +154,7 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
                     count={exams.last_page}
                     page={page}
                     onChange={handlePageChange}
+                    size={isMobile ? 'small' : 'medium'}
                 />
             </Box>
         </AuthenticatedLayout>

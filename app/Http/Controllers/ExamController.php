@@ -706,6 +706,29 @@ class ExamController extends Controller
         return view('exams.result', ['pageProps' => $pageProps]);
     }
 
+    public function myResults()
+    {
+        $user = auth()->user();
+
+        if (!$user->isStudent()) {
+            abort(403, 'فقط دانشجویان دسترسی دارند.');
+        }
+
+        $exams = $user->examsAsStudent()
+            ->wherePivot('status', 'finished')
+            ->withPivot('score', 'finished_at')
+            ->orderBy('exam_date', 'desc')
+            ->paginate(10);
+        
+        $pageProps = [
+            'isTeacher' => false,
+            'exams' => $exams,
+            'auth' => ['user' => $user]
+        ];
+        
+        return view('exams.my_results', ['pageProps' => $pageProps]);
+    }
+
     /**
      * نمایش همه نتایج آزمون‌های استاد (فقط برای داشبورد)
      */

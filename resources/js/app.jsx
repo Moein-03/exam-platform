@@ -16,6 +16,7 @@ import EditExam from './Pages/Exams/EditExam';
 import ManageExam from './Pages/Exams/ManageExam';
 import TakeExam from './Pages/Exams/TakeExam';
 import ExamResult from './Pages/Exams/ExamResult';
+import MyResults from './Pages/Exams/MyResults';
 import ExamResults from './Pages/ExamResults';
 
 import QuestionsIndex from './Pages/Questions/QuestionsIndex';
@@ -39,6 +40,7 @@ const components = {
      CreateExam,
      ExamsIndex,
      ExamResult,
+     MyResults,
      ShowExam,
      EditExam,
      TakeExam,

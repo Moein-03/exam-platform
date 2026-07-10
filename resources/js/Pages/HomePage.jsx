@@ -20,8 +20,8 @@ const HomePage = ({ isTeacher, auth }) => {
             await axios.post('/logout', {}, {
                 withCredentials: true,
                 headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             });
 
@@ -221,7 +221,7 @@ const HomePage = ({ isTeacher, auth }) => {
             </Container>
 
             <Box sx={{ bgcolor: 'primary.dark', color: 'white', py: 4, mt: 8, textAlign: 'center' }}>
-                <Typography variant="body2"> {new Date().getFullYear()} پلتفرم آزمون آنلاین. معین خسروی.</Typography>
+                <Typography variant="body2">پلتفرم آزمون آنلاین. معین خسروی.</Typography>
             </Box>
         </Box>
     );
