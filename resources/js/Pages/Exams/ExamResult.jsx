@@ -2,41 +2,81 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import {
      Box, Paper, Typography, Grid, Chip, Table,
      TableBody, TableCell, TableContainer, TableHead,
-     TableRow, Divider, Alert, Button
+     TableRow, Divider, Alert, useMediaQuery, useTheme
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 
-const ExamResult = ({ isTeacher, auth, exam, answers, score }) => {
-    return (
-          <AuthenticatedLayout user={auth.user} header={`نتیجه آزمون: ${exam.title}`} isTeacher={isTeacher}>
-               <Box sx={{ p: 3, direction: 'rtl' }}>
-                    <Paper sx={{ p: 3, mb: 3 }}>
+const ExamResult = ({ auth, exam, answers, isTeacher, score }) => {
+     const theme = useTheme();
+     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+     const toPersianNumber = num => {
+          if (num === null || num === undefined) return '-';
+          const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+          return num.toString().replace(/\d/g, d => persianDigits[parseInt(d)]);
+     };
+
+     const toPersianDateTime = (dateStr, timeStr) => {
+          if (!dateStr) return '-';
+          const parts = dateStr.split('-');
+          if (parts.length !== 3) return '-';
+          const year = parseInt(parts[0]);
+          const month = parseInt(parts[1]) - 1;
+          const day = parseInt(parts[2]);
+          let hours = 0, minutes = 0;
+          if (timeStr) {
+               const timeParts = timeStr.split(':');
+               if (timeParts.length >= 2) {
+                    hours = parseInt(timeParts[0]);
+                    minutes = parseInt(timeParts[1]);
+               }
+          }
+          const dateObj = new Date(year, month, day, hours, minutes);
+          if (isNaN(dateObj.getTime())) return '-';
+          return dateObj.toLocaleDateString('fa-IR', {
+               year: 'numeric',
+               month: '2-digit',
+               day: '2-digit',
+               hour: '2-digit',
+               minute: '2-digit'
+          });
+     };
+
+     return (
+          <AuthenticatedLayout user={auth.user} header={`نتیجه آزمون: ${exam.title}`}>
+               <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, direction: 'rtl' }}>
+                    <Paper sx={{ p: { xs: 1.5, sm: 2, md: 3 }, mb: 3 }}>
                          <Grid container spacing={2}>
                          <Grid item xs={12}>
-                              <Typography variant="h5" gutterBottom>
+                              <Typography variant={isMobile ? 'h6' : 'h5'} gutterBottom>
                                    {exam.title}
                               </Typography>
-                              <Chip label={exam.status} color="error" />
+                              <Chip label={exam.status} color="info" size={isMobile ? 'small' : 'medium'} />
                          </Grid>
                          {!isTeacher && (
                               <Grid item xs={12}>
                                    <Alert severity="success">
-                                        نمره شما: <strong>{score}</strong> از {exam.total_score}
+                                        نمره شما: <strong>{toPersianNumber(score)}</strong> از {toPersianNumber(exam.total_score)}
                                    </Alert>
                               </Grid>
                          )}
+                         <Grid item xs={12}>
+                              <Typography variant="body2" color="textSecondary">
+                                   تاریخ برگزاری: {toPersianDateTime(exam.exam_date, exam.start_time)}
+                              </Typography>
+                         </Grid>
                          </Grid>
                     </Paper>
 
-                    <Paper sx={{ p: 3 }}>
+                    <Paper sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
                          <Typography variant="h6" gutterBottom>
                          پاسخ‌ها
                          </Typography>
                          <Divider sx={{ mb: 2 }} />
 
                          <TableContainer>
-                         <Table>
+                         <Table size={isMobile ? 'small' : 'medium'}>
                               <TableHead>
                                    <TableRow>
                                         <TableCell>سوال</TableCell>
@@ -49,18 +89,20 @@ const ExamResult = ({ isTeacher, auth, exam, answers, score }) => {
                               <TableBody>
                                    {answers.map((answer) => (
                                         <TableRow key={answer.id}>
-                                             <TableCell>{answer.question?.text}</TableCell>
+                                             <TableCell sx={{ maxWidth: { xs: 100, sm: 200 }, whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                                             {answer.question?.text}
+                                             </TableCell>
                                              <TableCell>{answer.selected_answer}</TableCell>
                                              <TableCell>{answer.question?.correct_answer}</TableCell>
                                              <TableCell>
-                                                  {answer.is_correct ? (
-                                                       <Chip icon={<CheckCircleIcon/>} label="صحیح" color="success" size="small"/>
-                                                  ) : (
-                                                       <Chip icon={<CancelIcon/>} label="غلط" color="error" size="small"/>
-                                                  )}
+                                             {answer.is_correct ? (
+                                                  <Chip icon={<CheckCircleIcon />} label="صحیح" color="success" size={isMobile ? 'small' : 'medium'} />
+                                             ) : (
+                                                  <Chip icon={<CancelIcon />} label="غلط" color="error" size={isMobile ? 'small' : 'medium'} />
+                                             )}
                                              </TableCell>
                                              {isTeacher && (
-                                                  <TableCell sx={{ marginLeft: '10px' }}>{answer.user?.name}</TableCell>
+                                             <TableCell>{answer.user?.name}</TableCell>
                                              )}
                                         </TableRow>
                                    ))}
@@ -68,16 +110,9 @@ const ExamResult = ({ isTeacher, auth, exam, answers, score }) => {
                          </Table>
                          </TableContainer>
                     </Paper>
-                    <Button
-                         variant="outlined"
-                         href="/exams"
-                         sx={{ width: '130px', height: '50px', marginTop: '10px' }}
-                    >
-                         بازگشت به لیست
-                    </Button>
                </Box>
           </AuthenticatedLayout>
-    );
+     );
 };
 
 export default ExamResult;

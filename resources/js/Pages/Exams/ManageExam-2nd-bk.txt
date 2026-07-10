@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import axios from 'axios';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { useMediaQuery, useTheme } from '@mui/material';
 import {
      Box, Paper, Typography, Grid, Checkbox, FormControlLabel,
      Button, Divider, Alert, Chip, CircularProgress,
@@ -16,22 +15,12 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
      const [selectedStudentIds, setSelectedStudentIds] = useState(selectedStudents || []);
      const [selectedQuestionIds, setSelectedQuestionIds] = useState(selectedQuestions || []);
      const [loading, setLoading] = useState(false);
-     const theme = useTheme();
-     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-     const isTablet = useMediaQuery(theme.breakpoints.down('md'));
-
-     // توابع تبدیل
-     const toPersianNumber = (num) => {
-          if (num === null || num === undefined) return '-';
-          const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-          return num.toString().replace(/\d/g, d => persianDigits[parseInt(d)]);
-     };
 
      // جستجو
      const [searchStudent, setSearchStudent] = useState('');
      const [searchQuestion, setSearchQuestion] = useState('');
 
-     // محاسبه مجموع نمرات سوالات انتخاب‌ شده
+     // محاسبه مجموع نمرات سوالات انتخاب‌شده
      const selectedQuestionsTotalScore = useMemo(() => {
           return allQuestions
                .filter(q => selectedQuestionIds.includes(q.id))
@@ -109,9 +98,9 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
                return;
           }
 
-          //بررسی مجموع نمرات سوالات انتخاب‌ شده
+          // ✅ بررسی مجموع نمرات سوالات انتخاب‌شده
           if (!isTotalScoreMatched) {
-               toast.warning(`مجموع نمرات سوالات انتخاب‌ شده (${selectedQuestionsTotalScore}) با نمره کل آزمون (${exam.total_score}) برابر نیست.`);
+               toast.warning(`مجموع نمرات سوالات انتخاب‌شده (${selectedQuestionsTotalScore}) با نمره کل آزمون (${exam.total_score}) برابر نیست.`);
                return;
           }
 
@@ -140,8 +129,6 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
           };
           return types[type] || type;
      };
-
-     
 
      return (
           <AuthenticatedLayout user={auth.user} header={`مدیریت آزمون: ${exam.title}`} isTeacher={isTeacher}>
@@ -177,7 +164,7 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
                                              دانشجوها
                                              <Badge badgeContent={selectedStudentIds.length} color="primary" showZero>
                                              <Chip
-                                                  label={toPersianNumber(students.length)}
+                                                  label={students.length}
                                                   size="small"
                                                   variant="outlined"
                                              />
@@ -282,7 +269,7 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
                                              سوالات
                                              <Badge badgeContent={selectedQuestionIds.length} color="primary" showZero>
                                              <Chip
-                                                  label={toPersianNumber(allQuestions.length)}
+                                                  label={allQuestions.length}
                                                   size="small"
                                                   variant="outlined"
                                              />
@@ -324,13 +311,13 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
 
                                    <Divider sx={{ mb: 2 }} />
 
-                                   {/* نمایش مجموع نمرات سوالات انتخاب‌شده */}
+                                   {/* ✅ نمایش مجموع نمرات سوالات انتخاب‌شده */}
                                    <Box sx={{ mb: 2, p: 1.5, borderRadius: 1, bgcolor: isTotalScoreMatched ? 'success.light' : 'error.light' }}>
                                         <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                                              مجموع نمرات سوالات انتخاب‌شده:
-                                             <strong>{toPersianNumber(selectedQuestionsTotalScore)}</strong>
+                                             <strong>{selectedQuestionsTotalScore}</strong>
                                              از
-                                             <strong>{toPersianNumber(exam.total_score)}</strong>
+                                             <strong>{exam.total_score}</strong>
                                              {isTotalScoreMatched ? (
                                                   <Chip label="✓ تطابق دارد" color="success" size="small" />
                                              ) : (
@@ -388,7 +375,7 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
                                                                       variant="outlined"
                                                                  />
                                                                  <Chip
-                                                                      label={`نمره: ${toPersianNumber(question.score)}`}
+                                                                      label={`نمره: ${question.score}`}
                                                                       size="small"
                                                                       variant="outlined"
                                                                       color="secondary"
@@ -412,6 +399,7 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
                          </Grid>
                     </Grid>
 
+                    {/* دکمه‌های عملیات */}
                     <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2, flexWrap: 'wrap' }}>
                          <Button
                               variant="outlined"

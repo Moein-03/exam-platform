@@ -58,6 +58,12 @@ const QuestionsIndex = ({ isTeacher, auth, questions: initialQuestions }) => {
         return types[type] || type;
     };
 
+    const toPersianNumber = num => {
+        if (num === null || num === undefined) return '-';
+        const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        return num.toString().replace(/\d/g, d => persianDigits[parseInt(d)]);
+    };
+
     return (
         <AuthenticatedLayout user={auth.user} header="مدیریت سوالات" isTeacher={isTeacher}>
             <Box sx={{ mb: 2, direction: 'rtl' }}>
@@ -92,16 +98,16 @@ const QuestionsIndex = ({ isTeacher, auth, questions: initialQuestions }) => {
                                 <TableCell>
                                     <Chip label={getTypeLabel(q.type)} size="small" />
                                 </TableCell>
-                                <TableCell>{q.score}</TableCell>
+                                <TableCell>{toPersianNumber(q.score)}</TableCell>
                                 <TableCell>
-                                    {/* <Button
+                                    <Button
                                         size="small"
-                                        startIcon={<VisibilityIcon />}
+                                        startIcon={<VisibilityIcon sx={{marginLeft: '5px'}}/>}
                                         href={`/questions/${q.id}`}
                                         component="a"
                                     >
                                         مشاهده
-                                    </Button> */}
+                                    </Button>
                                     <Button
                                         size="small"
                                         startIcon={<EditIcon sx={{marginLeft: '5px'}}/>}

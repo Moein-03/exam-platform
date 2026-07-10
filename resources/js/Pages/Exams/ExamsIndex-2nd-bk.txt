@@ -17,7 +17,7 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-    const handleDelete = async slug => {
+    const handleDelete = async (slug) => {
         if (!confirm('آیا از حذف این آزمون اطمینان دارید؟')) return;
 
         try {
@@ -30,45 +30,12 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
         }
     };
 
-    const handlePageChange = value => {
+    const handlePageChange = (event, value) => {
         setPage(value);
         window.location.href = `/exams?page=${value}`;
     };
 
-    // تبدیل تاریخ و زمان به شمسی با اعداد فارسی
-    const toPersianDateTime = (dateStr, timeStr) => {
-        if (!dateStr) return '-';
-        const parts = dateStr.split('-');
-        if (parts.length !== 3) return '-';
-        const year = parseInt(parts[0]);
-        const month = parseInt(parts[1]) - 1;
-        const day = parseInt(parts[2]);
-        let hours = 0, minutes = 0;
-        if (timeStr) {
-            const timeParts = timeStr.split(':');
-            if (timeParts.length >= 2) {
-                hours = parseInt(timeParts[0]);
-                minutes = parseInt(timeParts[1]);
-            }
-        }
-        const dateObj = new Date(year, month, day, hours, minutes);
-        if (isNaN(dateObj.getTime())) return '-';
-        return dateObj.toLocaleDateString('fa-IR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
-
-    const toPersianNumber = num => {
-        if (num === null || num === undefined) return '-';
-        const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-        return num.toString().replace(/\d/g, d => persianDigits[parseInt(d)]);
-    };
-
-    const getStatusColor = status => {
+    const getStatusColor = (status) => {
         const colors = {
             'پیش‌نویس': 'warning',
             'فعال': 'info',
@@ -78,6 +45,7 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
         return colors[status] || 'default';
     };
 
+    // اندازه دکمه‌ها بر اساس دستگاه
     const buttonSize = isMobile ? 'small' : 'medium';
 
     return (
@@ -101,7 +69,7 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
                     <TableHead>
                         <TableRow>
                             <TableCell>عنوان</TableCell>
-                            <TableCell>تاریخ برگزاری</TableCell>
+                            <TableCell>تاریخ</TableCell>
                             <TableCell>مدت (دقیقه)</TableCell>
                             <TableCell>وضعیت</TableCell>
                             <TableCell>عملیات</TableCell>
@@ -111,8 +79,8 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
                         {exams.data.map(exam => (
                             <TableRow key={exam.id}>
                                 <TableCell>{exam.title}</TableCell>
-                                <TableCell>{toPersianDateTime(exam.exam_date, exam.start_time)}</TableCell>
-                                <TableCell>{toPersianNumber(exam.duration_min)}</TableCell>
+                                <TableCell>{exam.exam_date}</TableCell>
+                                <TableCell>{exam.duration_min}</TableCell>
                                 <TableCell>
                                     <Chip
                                         label={exam.status}

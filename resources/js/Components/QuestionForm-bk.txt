@@ -4,7 +4,7 @@ import axios from 'axios';
 import {
     TextField, Button, MenuItem, Grid, Paper, Typography,
     FormControl, InputLabel, Select, FormHelperText,
-    Chip, Box, Stack, useMediaQuery, useTheme
+    Chip, Box, Stack
 } from '@mui/material';
 import { toast } from 'react-toastify';
 
@@ -23,8 +23,6 @@ const validationSchema = yup.object({
 
 const QuestionForm = ({ question }) => {
     const isEditing = !!question;
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const formik = useFormik({
         initialValues: {
@@ -36,7 +34,7 @@ const QuestionForm = ({ question }) => {
             explanation: question?.explanation || '',
         },
         validationSchema,
-        onSubmit: async values => {
+        onSubmit: async (values) => {
             try {
                 const url = isEditing ? `/questions/${question.id}` : '/questions';
                 const method = isEditing ? 'put' : 'post';
@@ -62,7 +60,7 @@ const QuestionForm = ({ question }) => {
         formik.setFieldValue('options', [...formik.values.options, '']);
     };
 
-    const removeOption = index => {
+    const removeOption = (index) => {
         const newOptions = formik.values.options.filter((_, i) => i !== index);
         formik.setFieldValue('options', newOptions);
         const letter = String.fromCharCode(65 + index);
@@ -77,23 +75,16 @@ const QuestionForm = ({ question }) => {
         formik.setFieldValue('options', newOptions);
     };
 
-    const getOptionLetter = index => String.fromCharCode(65 + index);
-
-    const getHelperText = (field, error, touched, customMessage) => {
-        if (touched && error) return error;
-        if (customMessage) return customMessage;
-        return '\u00A0';
-    };
-
-    const buttonSize = isMobile ? 'small' : 'medium';
+    const getOptionLetter = (index) => String.fromCharCode(65 + index);
 
     return (
-        <Paper sx={{ p: { xs: 1.5, sm: 2, md: 3 }, direction: 'rtl', maxWidth: '100%', overflow: 'hidden' }}>
-            <Typography variant={isMobile ? 'h6' : 'h5'} gutterBottom>
+        <Paper sx={{ p: { xs: 2, sm: 3 }, direction: 'rtl', maxWidth: '100%', overflow: 'hidden' }}>
+            <Typography variant="h5" gutterBottom>
                 {isEditing ? 'ویرایش سوال' : 'سوال جدید'}
             </Typography>
             <form onSubmit={formik.handleSubmit}>
                 <Grid container spacing={2}>
+                    {/* متن سوال */}
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
@@ -104,11 +95,11 @@ const QuestionForm = ({ question }) => {
                             value={formik.values.text}
                             onChange={formik.handleChange}
                             error={formik.touched.text && Boolean(formik.errors.text)}
-                            helperText={getHelperText('text', formik.errors.text, formik.touched.text)}
-                            size={buttonSize}
+                            helperText={formik.touched.text && formik.errors.text}
                         />
                     </Grid>
 
+                    {/* نوع سوال و نمره */}
                     <Grid item xs={12} sm={6}>
                         <FormControl fullWidth error={formik.touched.type && Boolean(formik.errors.type)}>
                             <InputLabel>نوع سوال</InputLabel>
@@ -122,7 +113,7 @@ const QuestionForm = ({ question }) => {
                                 <MenuItem value="true_false">صحیح / غلط</MenuItem>
                                 <MenuItem value="essay">تشریحی</MenuItem>
                             </Select>
-                            <FormHelperText>{getHelperText('type', formik.errors.type, formik.touched.type)}</FormHelperText>
+                            <FormHelperText>{formik.touched.type && formik.errors.type}</FormHelperText>
                         </FormControl>
                     </Grid>
 
@@ -135,13 +126,13 @@ const QuestionForm = ({ question }) => {
                             value={formik.values.score}
                             onChange={formik.handleChange}
                             error={formik.touched.score && Boolean(formik.errors.score)}
-                            helperText={getHelperText('score', formik.errors.score, formik.touched.score)}
-                            size={buttonSize}
+                            helperText={formik.touched.score && formik.errors.score}
                         />
                     </Grid>
 
+                    {/* گزینه‌ها - فقط برای نوع گزینه‌ای */}
                     {formik.values.type === 'multiple_choice' && (
-                        <Grid item xs={12}>
+                        <Grid item xs={12} /* sx={{ marginRight: '50px' }} */>
                             <Typography variant="subtitle1" gutterBottom sx={{ mt: 1 }}>
                                 گزینه‌ها
                             </Typography>
@@ -157,7 +148,7 @@ const QuestionForm = ({ question }) => {
                                             gap: 1,
                                             '& .MuiTextField-root': {
                                                 flex: '1 1 200px',
-                                                minWidth: { xs: '100px', sm: '150px' },
+                                                minWidth: '120px',
                                             },
                                         }}
                                     >
@@ -167,16 +158,14 @@ const QuestionForm = ({ question }) => {
                                             value={opt}
                                             onChange={(e) => handleOptionChange(index, e.target.value)}
                                             error={formik.touched.options && Boolean(formik.errors.options?.[index])}
-                                            helperText={getHelperText(`options[${index}]`, formik.errors.options?.[index], formik.touched.options)}
-                                            size={buttonSize}
+                                            size="small"
                                         />
                                         <Button
                                             variant="outlined"
                                             color="error"
                                             onClick={() => removeOption(index)}
                                             disabled={formik.values.options.length <= 2}
-                                            sx={{ flexShrink: 0, minWidth: { xs: '50px', sm: '60px' } }}
-                                            size={buttonSize}
+                                            sx={{ flexShrink: 0, minWidth: '60px' }}
                                         >
                                             حذف
                                         </Button>
@@ -184,7 +173,7 @@ const QuestionForm = ({ question }) => {
                                 ))}
                             </Stack>
                             
-                            <Button variant="outlined" onClick={addOption} sx={{ mt: 2 }} size={buttonSize}>
+                            <Button variant="outlined" onClick={addOption} sx={{ mt: 2 }}>
                                 افزودن گزینه
                             </Button>
                             
@@ -196,51 +185,52 @@ const QuestionForm = ({ question }) => {
                         </Grid>
                     )}
 
-                    <Grid item xs={12}>
-                        <Box sx={{ minHeight: '80px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+                    {/* انتخاب پاسخ صحیح - با ارتفاع ثابت */}
+                    <Grid item xs={12} sx={{ display: 'block' }}>
+                        <Box sx={{ minHeight: '90px' }}>
                             {formik.values.type === 'multiple_choice' ? (
-                                <TextField
-                                    select
-                                    fullWidth
-                                    label="پاسخ صحیح"
-                                    name="correct_answer"
-                                    value={formik.values.correct_answer}
-                                    onChange={formik.handleChange}
+                                <FormControl 
+                                    fullWidth 
                                     error={formik.touched.correct_answer && Boolean(formik.errors.correct_answer)}
-                                    helperText={
-                                        formik.touched.correct_answer && formik.errors.correct_answer
-                                            ? formik.errors.correct_answer
-                                            : formik.values.options.some(opt => opt.trim() === '')
-                                            ? 'لطفاً ابتدا گزینه‌ها را تکمیل کنید'
-                                            : '\u00A0'
-                                    }
                                     disabled={formik.values.options.some(opt => opt.trim() === '')}
-                                    size={buttonSize}
                                 >
-                                    {formik.values.options.map((opt, index) => {
-                                        const letter = getOptionLetter(index);
-                                        return (
-                                            <MenuItem key={index} value={letter}>
-                                                {letter} - {opt || '(خالی)'}
-                                            </MenuItem>
-                                        );
-                                    })}
-                                </TextField>
+                                    <InputLabel>پاسخ صحیح</InputLabel>
+                                    <Select
+                                        name="correct_answer"
+                                        value={formik.values.correct_answer}
+                                        onChange={formik.handleChange}
+                                        label="پاسخ صحیح"
+                                        sx={{ minWidth: '150px' }}
+                                    >
+                                        {formik.values.options.map((opt, index) => {
+                                            const letter = getOptionLetter(index);
+                                            return (
+                                                <MenuItem key={index} value={letter}>
+                                                    {letter} - {opt || '(خالی)'}
+                                                </MenuItem>
+                                            );
+                                        })}
+                                    </Select>
+                                    <FormHelperText>
+                                        {formik.touched.correct_answer && formik.errors.correct_answer}
+                                        {formik.values.options.some(opt => opt.trim() === '') && ' • لطفاً ابتدا گزینه‌ها را تکمیل کنید'}
+                                    </FormHelperText>
+                                </FormControl>
                             ) : formik.values.type === 'true_false' ? (
-                                <TextField
-                                    select
-                                    fullWidth
-                                    label="پاسخ صحیح"
-                                    name="correct_answer"
-                                    value={formik.values.correct_answer}
-                                    onChange={formik.handleChange}
-                                    error={formik.touched.correct_answer && Boolean(formik.errors.correct_answer)}
-                                    helperText={getHelperText('correct_answer', formik.errors.correct_answer, formik.touched.correct_answer)}
-                                    size={buttonSize}
-                                >
-                                    <MenuItem value="true">درست</MenuItem>
-                                    <MenuItem value="false">نادرست</MenuItem>
-                                </TextField>
+                                <FormControl fullWidth error={formik.touched.correct_answer && Boolean(formik.errors.correct_answer)}>
+                                    <InputLabel>پاسخ صحیح</InputLabel>
+                                    <Select
+                                        name="correct_answer"
+                                        value={formik.values.correct_answer}
+                                        onChange={formik.handleChange}
+                                        label="پاسخ صحیح"
+                                        sx={{ minWidth: '150px' }}
+                                    >
+                                        <MenuItem value="true">درست</MenuItem>
+                                        <MenuItem value="false">نادرست</MenuItem>
+                                    </Select>
+                                    <FormHelperText>{formik.touched.correct_answer && formik.errors.correct_answer}</FormHelperText>
+                                </FormControl>
                             ) : (
                                 <TextField
                                     fullWidth
@@ -249,14 +239,14 @@ const QuestionForm = ({ question }) => {
                                     value={formik.values.correct_answer}
                                     onChange={formik.handleChange}
                                     error={formik.touched.correct_answer && Boolean(formik.errors.correct_answer)}
-                                    helperText={getHelperText('correct_answer', formik.errors.correct_answer, formik.touched.correct_answer)}
+                                    helperText={formik.touched.correct_answer && formik.errors.correct_answer}
                                     placeholder="پاسخ صحیح را وارد کنید"
-                                    size={buttonSize}
                                 />
                             )}
                         </Box>
                     </Grid>
 
+                    {/* توضیحات (بازخورد) */}
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
@@ -267,16 +257,16 @@ const QuestionForm = ({ question }) => {
                             value={formik.values.explanation}
                             onChange={formik.handleChange}
                             helperText="این توضیح بعد از پاسخ‌دهی به دانشجو نمایش داده می‌شود (اختیاری)"
-                            size={buttonSize}
                         />
                     </Grid>
 
+                    {/* دکمه‌های عملیات */}
                     <Grid item xs={12}>
                         <Box
                             sx={{
                                 display: 'flex',
                                 flexWrap: 'wrap',
-                                gap: { xs: 1, sm: 2 },
+                                gap: 2,
                                 justifyContent: 'flex-start',
                                 alignItems: 'center',
                                 mt: 1,
@@ -286,16 +276,14 @@ const QuestionForm = ({ question }) => {
                                 type="submit"
                                 variant="contained"
                                 color="primary"
-                                size={buttonSize}
-                                sx={{ minWidth: { xs: '100px', sm: '120px' } }}
+                                sx={{ minWidth: '120px' }}
                             >
                                 {isEditing ? 'به‌روزرسانی' : 'ایجاد سوال'}
                             </Button>
                             <Button
                                 variant="outlined"
                                 href="/questions"
-                                size={buttonSize}
-                                sx={{ minWidth: { xs: '80px', sm: '100px' } }}
+                                sx={{ minWidth: '100px' }}
                             >
                                 بازگشت به لیست
                             </Button>

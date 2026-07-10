@@ -6,18 +6,16 @@ import {
     Box, Paper, Typography, Grid, Button,
     Radio, RadioGroup, FormControlLabel,
     FormControl, TextField, Alert, CircularProgress,
-    Divider, useMediaQuery, useTheme
+    Divider
 } from '@mui/material';
 import { toast } from 'react-toastify';
 
-const TakeExam = ({ isTeacher, auth, exam: initialExam, questions: initialQuestions }) => {
+const TakeExam = ({ auth, exam: initialExam, questions: initialQuestions }) => {
     const [exam, setExam] = useState(initialExam || null);
     const [questions, setQuestions] = useState(initialQuestions || []);
     const [answers, setAnswers] = useState({});
     const [loading, setLoading] = useState(!initialExam);
     const [submitting, setSubmitting] = useState(false);
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     useEffect(() => {
         if (!initialExam) {
@@ -35,12 +33,6 @@ const TakeExam = ({ isTeacher, auth, exam: initialExam, questions: initialQuesti
         }
     }, [initialExam]);
 
-    const toPersianNumber = (num) => {
-        if (num === null || num === undefined) return '-';
-        const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-        return num.toString().replace(/\d/g, d => persianDigits[parseInt(d)]);
-    };
-
     const handleAnswerChange = (questionId, value) => {
         setAnswers(prev => ({ ...prev, [questionId]: value }));
     };
@@ -54,7 +46,7 @@ const TakeExam = ({ isTeacher, auth, exam: initialExam, questions: initialQuesti
                 await axios.post(`/exams/${exam.slug}/submit`, { answers });
             }
             toast.info('زمان آزمون به پایان رسید.');
-            window.location.href = `/exams/${exam.slug}/result`;
+            window.location.href = `/exams/${exam.slug}/results`;
         } catch (error) {
             const msg = error.response?.data?.error || 'خطا در پایان آزمون';
             toast.error(msg);
@@ -82,6 +74,7 @@ const TakeExam = ({ isTeacher, auth, exam: initialExam, questions: initialQuesti
         }
 
         try {
+            // فقط submit را صدا بزن (خودش وضعیت را به اتمام آزمون تغییر می‌دهد)
             await axios.post(`/exams/${exam.slug}/submit`, { answers });
             toast.success('پاسخ‌ها با موفقیت ثبت شد و آزمون به پایان رسید.');
             window.location.href = `/exams/${exam.slug}/result`;
@@ -112,20 +105,21 @@ const TakeExam = ({ isTeacher, auth, exam: initialExam, questions: initialQuesti
     }
 
     return (
-        <AuthenticatedLayout user={auth.user} header={`شرکت در آزمون: ${exam.title}`} isTeacher={isTeacher}>
-            <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, direction: 'rtl' }}>
-                <Paper sx={{ p: { xs: 1.5, sm: 2, md: 3 }, mb: 3 }}>
-                    <Grid container spacing={{ xs: 1, sm: 2 }} alignItems="center">
-                        <Grid item xs={12} sm={8}>
-                            <Typography variant={isMobile ? 'h6' : 'h5'}>{exam.title}</Typography>
+        <AuthenticatedLayout user={auth.user} header={`شرکت در آزمون: ${exam.title}`}>
+            <Box sx={{ p: 3, direction: 'rtl' }}>
+                <Paper sx={{ p: 3, mb: 3 }}>
+                    <Grid container spacing={2} alignItems="center">
+                        <Grid item xs={12} md={8}>
+                            <Typography variant="h5">{exam.title}</Typography>
                             <Typography variant="body2" color="textSecondary">
                                 {exam.description}
                             </Typography>
                             <Typography variant="caption" display="block" color="textSecondary" sx={{ mt: 1 }}>
-                                تعداد سوالات: {toPersianNumber(questions.length)} | نمره کل: {toPersianNumber(exam.total_score)}
+                                تعداد سوالات: {questions.length} | نمره کل: {exam.total_score}
                             </Typography>
                         </Grid>
-                        <Grid item xs={12} sm={4} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
+                        <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            {/* تابع handleTimeout به Timer پاس داده می‌شود */}
                             <Timer
                                 initialSeconds={exam.duration_min * 60}
                                 onTimeout={handleTimeout}
@@ -135,15 +129,15 @@ const TakeExam = ({ isTeacher, auth, exam: initialExam, questions: initialQuesti
                     </Grid>
                 </Paper>
 
-                <Paper sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
+                <Paper sx={{ p: 3 }}>
                     <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
                         {questions.map((q, index) => (
-                            <Box key={q.id} sx={{ mb: { xs: 2, sm: 3, md: 4 } }}>
-                                <Typography variant={isMobile ? 'subtitle1' : 'h6'}>
-                                    سوال {toPersianNumber(index + 1)}: {q.text}
+                            <Box key={q.id} sx={{ mb: 4 }}>
+                                <Typography variant="h6">
+                                    سوال {index + 1}: {q.text}
                                 </Typography>
                                 <Typography variant="caption" color="textSecondary">
-                                    نمره: {toPersianNumber(q.score)}
+                                    نمره: {q.score}
                                 </Typography>
 
                                 <Box sx={{ mt: 2 }}>
@@ -185,7 +179,6 @@ const TakeExam = ({ isTeacher, auth, exam: initialExam, questions: initialQuesti
                                             value={answers[q.id] || ''}
                                             onChange={(e) => handleAnswerChange(q.id, e.target.value)}
                                             placeholder="پاسخ خود را بنویسید..."
-                                            size={isMobile ? 'small' : 'medium'}
                                         />
                                     )}
                                 </Box>
@@ -199,8 +192,7 @@ const TakeExam = ({ isTeacher, auth, exam: initialExam, questions: initialQuesti
                                 variant="contained"
                                 color="success"
                                 disabled={submitting}
-                                size={isMobile ? 'medium' : 'large'}
-                                fullWidth={isMobile}
+                                size="large"
                             >
                                 {submitting ? 'در حال ارسال...' : 'اتمام آزمون و ثبت پاسخ‌ها'}
                             </Button>

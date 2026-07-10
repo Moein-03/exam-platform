@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Grid, Card, CardContent, Typography, CircularProgress } from '@mui/material';
+import { Grid, Card, CardContent, Typography, CircularProgress, useMediaQuery, useTheme } from '@mui/material';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -15,6 +14,14 @@ const Dashboard = ({
 }) => {
      const [stats, setStats] = useState(null);
      const [loading, setLoading] = useState(true);
+     const theme = useTheme();
+     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+     const toPersianNumber = (num) => {
+          if (num === null || num === undefined) return '-';
+          const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+          return num.toString().replace(/\d/g, d => persianDigits[parseInt(d)]);
+     };
 
      useEffect(() => {
           setStats({
@@ -37,33 +44,45 @@ const Dashboard = ({
 
      return (
           <AuthenticatedLayout user={user} isTeacher={isTeacher}>
-               <div style={{ padding: '20px', direction: 'rtl' }}>
-                    <Grid container spacing={3}>
+               <div style={{ padding: isMobile ? '10px' : '20px', direction: 'rtl' }}>
+                    <Grid container spacing={isMobile ? 1 : 3}>
                          {isTeacher ? (
                          <>
-                              <Grid item xs={12} md={4}>
+                              <Grid item xs={12} sm={6} md={4}>
                                    <Card sx={{ textAlign: 'center' }}>
                                         <CardContent>
-                                             <Typography color="textSecondary" gutterBottom>تعداد آزمون‌ها</Typography>
-                                             <Typography variant="h4" color="primary">{stats?.examsCount || 0}</Typography>
+                                             <Typography color="textSecondary" gutterBottom variant={isMobile ? 'body2' : 'body1'}>
+                                                  تعداد آزمون‌ها
+                                             </Typography>
+                                             <Typography variant={isMobile ? 'h5' : 'h4'} color="primary">
+                                                  {toPersianNumber(stats?.examsCount || 0)}
+                                             </Typography>
                                         </CardContent>
                                    </Card>
                               </Grid>
 
-                              <Grid item xs={12} md={4}>
+                              <Grid item xs={12} sm={6} md={4}>
                                    <Card sx={{ textAlign: 'center' }}>
                                         <CardContent>
-                                             <Typography color="textSecondary" gutterBottom>تعداد سوالات</Typography>
-                                             <Typography variant="h4" color="primary">{stats?.questionsCount || 0}</Typography>
+                                             <Typography color="textSecondary" gutterBottom variant={isMobile ? 'body2' : 'body1'}>
+                                                  تعداد سوالات
+                                             </Typography>
+                                             <Typography variant={isMobile ? 'h5' : 'h4'} color="primary">
+                                                  {toPersianNumber(stats?.questionsCount || 0)}
+                                             </Typography>
                                         </CardContent>
                                    </Card>
                               </Grid>
 
-                              <Grid item xs={12} md={4}>
+                              <Grid item xs={12} sm={6} md={4}>
                                    <Card sx={{ textAlign: 'center' }}>
                                         <CardContent>
-                                             <Typography color="textSecondary" gutterBottom>میانگین نمرات</Typography>
-                                             <Typography variant="h4" color="primary">{stats?.avgScore || 0}</Typography>
+                                             <Typography color="textSecondary" gutterBottom variant={isMobile ? 'body2' : 'body1'}>
+                                                  میانگین نمرات
+                                             </Typography>
+                                             <Typography variant={isMobile ? 'h5' : 'h4'} color="primary">
+                                                  {toPersianNumber(stats?.avgScore || 0)}
+                                             </Typography>
                                         </CardContent>
                                    </Card>
                               </Grid>
@@ -72,12 +91,14 @@ const Dashboard = ({
                          <Grid item xs={12}>
                               <Card>
                                    <CardContent>
-                                        <Typography variant="h5" gutterBottom>به پنل دانشجویی خوش آمدید</Typography>
-                                        <Typography variant="h6">
-                                             تعداد آزمون‌های شرکت کرده: <strong>{examsTaken || 0}</strong>
+                                        <Typography variant={isMobile ? 'h6' : 'h5'} gutterBottom>
+                                             به پنل دانشجویی خوش آمدید
                                         </Typography>
                                         <Typography variant="h6">
-                                             میانگین نمرات: <strong>{avgScore || 0}</strong>
+                                             تعداد آزمون‌های شرکت کرده: <strong>{toPersianNumber(examsTaken || 0)}</strong>
+                                        </Typography>
+                                        <Typography variant="h6">
+                                             میانگین نمرات: <strong>{toPersianNumber(avgScore || 0)}</strong>
                                         </Typography>
                                    </CardContent>
                               </Card>
