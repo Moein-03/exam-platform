@@ -84,8 +84,8 @@ const MyResults = ({ isTeacher, auth, exams }) => {
                          </Paper>
                     ) : (
                          <>
-                              <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
-                                   <Table size={tableCellSize} sx={{ minWidth: { xs: 500, sm: '100%' } }}>
+                              <TableContainer component={Paper} sx={{ overflowX: 'auto', display: 'block', width: '100%' }}>
+                                   <Table size={tableCellSize} sx={{ minWidth: { xs: '600px', sm: '100%' } }}>
                                         <TableHead>
                                              <TableRow>
                                                   <TableCell>عنوان آزمون</TableCell>

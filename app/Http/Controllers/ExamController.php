@@ -717,7 +717,7 @@ class ExamController extends Controller
         $exams = $user->examsAsStudent()
             ->wherePivot('status', 'finished')
             ->withPivot('score', 'finished_at')
-            ->orderBy('exam_date', 'desc')
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
         
         $pageProps = [

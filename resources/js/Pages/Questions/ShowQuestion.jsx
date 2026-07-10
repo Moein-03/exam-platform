@@ -22,7 +22,7 @@ const ShowQuestion = ({ isTeacher, auth, question }) => {
 
      const getTypeLabel = (type) => {
           const types = {
-               multiple_choice: 'گزینه‌ای',
+               multiple_choice: 'چند گزینه‌ای',
                true_false: 'صحیح/غلط',
                essay: 'تشریحی'
           };

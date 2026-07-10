@@ -30,11 +30,12 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
         }
     };
 
-    const handlePageChange = (event, value) => {
+    const handlePageChange = value => {
         setPage(value);
         window.location.href = `/exams?page=${value}`;
     };
 
+    // تبدیل تاریخ و زمان به شمسی با اعداد فارسی
     const toPersianDateTime = (dateStr, timeStr) => {
         if (!dateStr) return '-';
         const parts = dateStr.split('-');
@@ -81,19 +82,7 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
 
     return (
         <AuthenticatedLayout user={auth.user} header="مدیریت آزمون‌ها" isTeacher={isTeacher}>
-            {/* ✅ دکمه sticky برای موبایل */}
-            <Box
-                sx={{
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 1,
-                    backgroundColor: 'background.paper',
-                    py: 1,
-                    mb: 2,
-                    direction: 'rtl',
-                    boxShadow: isMobile ? 1 : 0,
-                }}
-            >
+            <Box sx={{ mb: 2, direction: "rtl" }}>
                 {isTeacher && (
                     <Button
                         variant="contained"
@@ -101,7 +90,6 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
                         href="/exams/create"
                         component="a"
                         size={buttonSize}
-                        fullWidth={isMobile}
                     >
                         آزمون جدید
                     </Button>
@@ -112,11 +100,11 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
                 <Table sx={{ minWidth: { xs: 600, sm: '100%' }, direction: 'rtl' }}>
                     <TableHead>
                         <TableRow>
-                            <TableCell sx={{ paddingLeft: '40px' }}>عنوان</TableCell>
-                            <TableCell sx={{ textAlign: 'center' }}>تاریخ برگزاری</TableCell>
+                            <TableCell>عنوان</TableCell>
+                            <TableCell>تاریخ برگزاری</TableCell>
                             <TableCell>مدت (دقیقه)</TableCell>
-                            <TableCell sx={{ textAlign: 'center' }}>وضعیت</TableCell>
-                            <TableCell sx={{ textAlign: 'center' }}>عملیات</TableCell>
+                            <TableCell>وضعیت</TableCell>
+                            <TableCell>عملیات</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>

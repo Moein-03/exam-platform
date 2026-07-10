@@ -158,7 +158,7 @@ const ShowExam = ({ isTeacher, auth, exam }) => {
                         </Grid>
                         <Grid item xs={12} sm={4}>
                             <Typography variant="body1">
-                                <strong>تاریخ برگزاری:</strong> {toPersianDateTime(exam.exam_date, exam.start_time)}
+                                <strong>تاریخ و زمان برگزاری:</strong> {toPersianDateTime(exam.exam_date, exam.start_time)}
                             </Typography>
                         </Grid>
                         <Grid item xs={12} sm={4}>

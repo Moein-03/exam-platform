@@ -324,10 +324,10 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
 
                                    <Divider sx={{ mb: 2 }} />
 
-                                   {/* نمایش مجموع نمرات سوالات انتخاب‌شده */}
+                                   {/* نمایش مجموع نمرات سوالات انتخاب‌ شده */}
                                    <Box sx={{ mb: 2, p: 1.5, borderRadius: 1, bgcolor: isTotalScoreMatched ? 'success.light' : 'error.light' }}>
                                         <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                                             مجموع نمرات سوالات انتخاب‌شده:
+                                             مجموع نمرات سوالات انتخاب‌ شده:
                                              <strong>{toPersianNumber(selectedQuestionsTotalScore)}</strong>
                                              از
                                              <strong>{toPersianNumber(exam.total_score)}</strong>
@@ -424,7 +424,7 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
                               color="success"
                               onClick={handleSubmit}
                               disabled={loading || !isTotalScoreMatched || selectedQuestionIds.length !== exam.question_count}
-                              startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
+                              startIcon={loading ? <CircularProgress size={20} color="inherit" sx={{marginLeft: '5px'}}/> : null}
                               sx={{ minWidth: 150 }}
                          >
                               {loading ? 'در حال ذخیره...' : 'فعال‌سازی آزمون'}

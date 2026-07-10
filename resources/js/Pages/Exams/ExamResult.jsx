@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import {
-     Box, Paper, Typography, Grid, Chip, Table,
+     Box, Paper, Typography, Grid, Chip, Table, Button,
      TableBody, TableCell, TableContainer, TableHead,
      TableRow, Divider, Alert, useMediaQuery, useTheme
 } from '@mui/material';
@@ -43,31 +43,35 @@ const ExamResult = ({ auth, exam, answers, isTeacher, score }) => {
           });
      };
 
+     const buttonSize = isMobile ? 'small' : 'medium';
+
      return (
-          <AuthenticatedLayout user={auth.user} header={`نتیجه آزمون: ${exam.title}`}>
+          <AuthenticatedLayout user={auth.user} header={`نتیجه آزمون: ${exam.title}`} isTeacher={isTeacher}>
                <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, direction: 'rtl' }}>
                     <Paper sx={{ p: { xs: 1.5, sm: 2, md: 3 }, mb: 3 }}>
                          <Grid container spacing={2}>
-                         <Grid item xs={12}>
-                              <Typography variant={isMobile ? 'h6' : 'h5'} gutterBottom>
-                                   {exam.title}
-                              </Typography>
-                              <Chip label={exam.status} color="info" size={isMobile ? 'small' : 'medium'} />
-                         </Grid>
-                         {!isTeacher && (
                               <Grid item xs={12}>
-                                   <Alert severity="success">
-                                        نمره شما: <strong>{toPersianNumber(score)}</strong> از {toPersianNumber(exam.total_score)}
-                                   </Alert>
+                                   <Typography variant={isMobile ? 'h6' : 'h5'} gutterBottom>
+                                        {exam.title}
+                                   </Typography>
+                                   <Chip label={exam.status} color="info" size={isMobile ? 'small' : 'medium'} />
                               </Grid>
-                         )}
-                         <Grid item xs={12}>
-                              <Typography variant="body2" color="textSecondary">
-                                   تاریخ برگزاری: {toPersianDateTime(exam.exam_date, exam.start_time)}
-                              </Typography>
-                         </Grid>
+                              {!isTeacher && (
+                                   <Grid item xs={12}>
+                                        <Alert severity="success">
+                                             نمره شما: <strong>{toPersianNumber(score)}</strong> از {toPersianNumber(exam.total_score)}
+                                        </Alert>
+                                   </Grid>
+                              )}
+                              <Grid item xs={12}>
+                                   <Typography variant="body2" color="textSecondary">
+                                        تاریخ برگزاری: {toPersianDateTime(exam.exam_date, exam.start_time)}
+                                   </Typography>
+                              </Grid>
                          </Grid>
                     </Paper>
+
+                    
 
                     <Paper sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
                          <Typography variant="h6" gutterBottom>
@@ -110,6 +114,34 @@ const ExamResult = ({ auth, exam, answers, isTeacher, score }) => {
                          </Table>
                          </TableContainer>
                     </Paper>
+                    {isTeacher ? (
+                         <Button
+                              variant="outlined"
+                              href="/results"
+                              sx={{ 
+                                   width: { xs: '100%', sm: '140px' }, 
+                                   height: { xs: '40px', sm: '50px' }, 
+                                   marginTop: '20px' 
+                              }}
+                              size={buttonSize}
+                         >
+                              بازگشت به نتایج
+                         </Button>
+                    ): (
+                         <Button
+                              variant="outlined"
+                              href="/my-results"
+                              sx={{ 
+                                   width: { xs: '100%', sm: '140px' }, 
+                                   height: { xs: '40px', sm: '50px' }, 
+                                   marginTop: '20px' 
+                              }}
+                              size={buttonSize}
+                         >
+                              بازگشت به نتایج من
+                         </Button>
+                    )}
+                    
                </Box>
           </AuthenticatedLayout>
      );

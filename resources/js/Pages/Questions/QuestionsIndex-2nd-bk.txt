@@ -4,7 +4,7 @@ import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
 import {
     Box, Button, Table, TableBody, TableCell,
     TableContainer, TableHead, TableRow, Paper,
-    Chip, Pagination, Typography, useMediaQuery, useTheme
+    Chip, Pagination, Typography
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -15,14 +15,14 @@ import { toast } from 'react-toastify';
 const QuestionsIndex = ({ isTeacher, auth, questions: initialQuestions }) => {
     const [questions, setQuestions] = useState(initialQuestions);
     const [page, setPage] = useState(initialQuestions.current_page);
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const handleDelete = async (id) => {
         if (!confirm('آیا از حذف این سوال اطمینان دارید؟')) return;
+
         try {
             await axios.delete(`/questions/${id}`);
             toast.success('سوال حذف شد');
+            
             setQuestions(prev => ({
                 ...prev,
                 data: prev.data.filter(q => q.id !== id),
@@ -64,94 +64,66 @@ const QuestionsIndex = ({ isTeacher, auth, questions: initialQuestions }) => {
         return num.toString().replace(/\d/g, d => persianDigits[parseInt(d)]);
     };
 
-    const buttonSize = isMobile ? 'small' : 'medium';
-
     return (
         <AuthenticatedLayout user={auth.user} header="مدیریت سوالات" isTeacher={isTeacher}>
-            <Box
-                sx={{
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 1100,
-                    backgroundColor: 'background.paper',
-                    py: 1,
-                    mb: 2,
-                    direction: 'rtl',
-                    boxShadow: isMobile ? 2 : 0,
-                }}
-            >
+            <Box sx={{ mb: 2, direction: 'rtl' }}>
                 <Button
                     variant="contained"
                     startIcon={<AddIcon />}
                     href="/questions/create"
                     component="a"
-                    size={buttonSize}
-                    fullWidth={isMobile}
                 >
                     سوال جدید
                 </Button>
             </Box>
 
-            <TableContainer
-                component={Paper}
-                sx={{
-                    overflowX: 'auto',
-                    display: 'block',
-                    width: '100%',
-                    direction: 'rtl',
-                }}
-            >
-                <Table
-                    sx={{
-                        minWidth: { xs: '700px', sm: '100%' },
-                        direction: 'rtl',
-                    }}
-                >
+            <TableContainer component={Paper} sx={{direction:'rtl'}}>
+                <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell sx={{ textAlign: 'center' }}>متن سوال</TableCell>
-                            <TableCell sx={{ paddingLeft: '35px' }}>نوع</TableCell>
+                            <TableCell>متن سوال</TableCell>
+                            <TableCell>نوع</TableCell>
                             <TableCell>نمره</TableCell>
-                            <TableCell sx={{ textAlign: 'center' }}>عملیات</TableCell>
+                            <TableCell>عملیات</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {questions.data.map((q) => (
                             <TableRow key={q.id}>
                                 <TableCell sx={{ maxWidth: 300 }}>
-                                    <Typography noWrap>{q.text}</Typography>
+                                    <Typography noWrap>
+                                        {q.text}
+                                    </Typography>
                                 </TableCell>
                                 <TableCell>
-                                    <Chip label={getTypeLabel(q.type)} size={isMobile ? 'small' : 'medium'} />
+                                    <Chip label={getTypeLabel(q.type)} size="small" />
                                 </TableCell>
                                 <TableCell>{toPersianNumber(q.score)}</TableCell>
                                 <TableCell>
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                        <Button
-                                            size={buttonSize}
-                                            startIcon={<VisibilityIcon sx={{ marginLeft: '5px' }} />}
-                                            href={`/questions/${q.id}`}
-                                            component="a"
-                                        >
-                                            مشاهده
-                                        </Button>
-                                        <Button
-                                            size={buttonSize}
-                                            startIcon={<EditIcon sx={{ marginLeft: '5px' }} />}
-                                            href={`/questions/${q.id}/edit`}
-                                            component="a"
-                                        >
-                                            ویرایش
-                                        </Button>
-                                        <Button
-                                            size={buttonSize}
-                                            startIcon={<DeleteIcon sx={{ marginLeft: '5px' }} />}
-                                            onClick={() => handleDelete(q.id)}
-                                            color="error"
-                                        >
-                                            حذف
-                                        </Button>
-                                    </Box>
+                                    <Button
+                                        size="small"
+                                        startIcon={<VisibilityIcon sx={{marginLeft: '5px'}}/>}
+                                        href={`/questions/${q.id}`}
+                                        component="a"
+                                    >
+                                        مشاهده
+                                    </Button>
+                                    <Button
+                                        size="small"
+                                        startIcon={<EditIcon sx={{marginLeft: '5px'}}/>}
+                                        href={`/questions/${q.id}/edit`}
+                                        component="a"
+                                    >
+                                        ویرایش
+                                    </Button>
+                                    <Button
+                                        size="small"
+                                        startIcon={<DeleteIcon sx={{marginLeft: '5px'}}/>}
+                                        onClick={() => handleDelete(q.id)}
+                                        color="error"
+                                    >
+                                        حذف
+                                    </Button>
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -159,12 +131,11 @@ const QuestionsIndex = ({ isTeacher, auth, questions: initialQuestions }) => {
                 </Table>
             </TableContainer>
 
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mr: 25 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
                 <Pagination
                     count={questions.last_page}
                     page={page}
                     onChange={handlePageChange}
-                    size={isMobile ? 'small' : 'medium'}
                 />
             </Box>
         </AuthenticatedLayout>
