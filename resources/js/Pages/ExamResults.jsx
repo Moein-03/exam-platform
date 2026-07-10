@@ -1,15 +1,24 @@
-import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import {
      Box, Paper, Typography, Grid, Card, CardContent,
      Table, TableBody, TableCell, TableContainer,
      TableHead, TableRow, Chip, Button
 } from '@mui/material';
-//import { Link } from 'react-router-dom';
 
-const ExamResults = ({ auth, exams }) => {
+const ExamResults = ({ isTeacher, auth, exams }) => {
+
+     const getStatusColor = (status) => {
+          const colors = {
+               'پیش‌نویس': 'warning',
+               'فعال': 'info',
+               'درحال برگزاری': 'success',
+               'اتمام آزمون': 'error'
+          };
+          return colors[status] || 'default';
+     };
+
      return (
-          <AuthenticatedLayout user={auth.user} header="همه نتایج آزمون‌ها">
+          <AuthenticatedLayout user={auth.user} header="همه نتایج آزمون‌ها" isTeacher={isTeacher}>
                <Box sx={{ p: 3, direction: 'rtl' }}>
                     <Grid container spacing={3}>
                          {exams.map((exam) => (
@@ -18,10 +27,10 @@ const ExamResults = ({ auth, exams }) => {
                                    <CardContent>
                                         <Typography variant="h6" gutterBottom>
                                              {exam.title}
-                                             <Chip label={exam.status} color="info" size="small" sx={{ mr: 1 }} />
+                                             <Chip label={exam.status} color={getStatusColor(exam.status)} size="small" sx={{ mr: 1 }} />
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary">
-                                             تاریخ برگزاری: {exam.exam_date} | تعداد شرکت‌کنندگان: {exam.students?.length || 0}
+                                             تاریخ و ساعت برگزاری: {exam.exam_date}: {exam.start_time} | تعداد شرکت‌کنندگان: {exam.students?.length || 0} | نمره کل آزمون: {exam?.total_score || 0}
                                         </Typography>
                                         <TableContainer component={Paper} sx={{ mt: 2 }}>
                                              <Table size="small">
@@ -40,7 +49,7 @@ const ExamResults = ({ auth, exams }) => {
                                                             <TableCell>{student.pivot.score ?? 'نامشخص'}</TableCell>
                                                             <TableCell>
                                                                  <Chip
-                                                                      label={student.pivot.status === 'finished' ? 'اتمام' : 'در حال'}
+                                                                      label={student.pivot.status === 'finished' ? 'اتمام' : 'ناتمام'}
                                                                       color={student.pivot.status === 'finished' ? 'success' : 'warning'}
                                                                       size="small"
                                                                  />
@@ -64,6 +73,13 @@ const ExamResults = ({ auth, exams }) => {
                          </Grid>
                          ))}
                     </Grid>
+                    <Button
+                         variant="outlined"
+                         href="/dashboard"
+                         sx={{ width: '140px', height: '50px', marginTop: '20px' }}
+                    >
+                         بازگشت به داشبورد
+                    </Button>
                </Box>
           </AuthenticatedLayout>
      );

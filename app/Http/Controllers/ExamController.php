@@ -91,6 +91,7 @@ class ExamController extends Controller
         $exam = Exam::where('slug', $slug)->firstOrFail();
         $user = auth()->user();
         $pageProps = [
+            'isTeacher' => $user->isTeacher(),
             'exam' => $exam,
             'auth' => ['user' => $user]
         ];
@@ -730,7 +731,7 @@ class ExamController extends Controller
             'auth' => ['user' => $user]
         ];
         
-        return view('results.index', ['pageProps' => $pageProps]);
+        return view('results', ['pageProps' => $pageProps]);
     }
 
     private function authorizeTeacher()

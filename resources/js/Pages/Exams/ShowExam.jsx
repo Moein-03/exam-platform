@@ -10,7 +10,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Settings, PlayArrow } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
-const ShowExam = ({ auth, exam }) => {
+const ShowExam = ({ isTeacher, auth, exam }) => {
     const [loading, setLoading] = useState(!exam);
     const [error, setError] = useState(null);
     const [isConducting, setIsConducting] = useState(false);
@@ -64,7 +64,7 @@ const ShowExam = ({ auth, exam }) => {
 
     if (loading) {
         return (
-            <AuthenticatedLayout user={auth?.user} header="بارگذاری...">
+            <AuthenticatedLayout user={auth?.user} header="بارگذاری..." isTeacher={isTeacher}>
                 <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
                     <CircularProgress />
                 </Box>
@@ -91,7 +91,7 @@ const ShowExam = ({ auth, exam }) => {
     };
 
     return (
-        <AuthenticatedLayout user={auth?.user} header={`نمایش آزمون: ${exam.title}`}>
+        <AuthenticatedLayout user={auth?.user} header={`نمایش آزمون: ${exam.title}`} >
             <Box sx={{ p: 3, direction: 'rtl' }}>
                 <Paper sx={{ p: 3 }}>
                     <Grid container spacing={2}>

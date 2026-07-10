@@ -73,9 +73,9 @@ const HomePage = ({ isTeacher, auth }) => {
         if (isTeacher) {
             cards.push({
                 title: 'تحلیل و گزارش',
-                description: 'مشاهده آمار دقیق هر آزمون، سوالات پرخطا و میانگین نمرات',
+                description: 'مشاهده گزارش وضیعت آزمو‌ن‌ها',
                 icon: <AssignmentIcon fontSize="large" color="info" />,
-                link: '/reports',
+                link: '/results',
                 linkText: 'مشاهده گزارش‌ها',
             });
         }

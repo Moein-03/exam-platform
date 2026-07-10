@@ -7,7 +7,7 @@ import {
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 
-const ExamResult = ({ auth, exam, answers, isTeacher, score }) => {
+const ExamResult = ({ isTeacher, auth, exam, answers, score }) => {
     return (
           <AuthenticatedLayout user={auth.user} header={`نتیجه آزمون: ${exam.title}`} isTeacher={isTeacher}>
                <Box sx={{ p: 3, direction: 'rtl' }}>
