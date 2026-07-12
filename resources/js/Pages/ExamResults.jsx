@@ -10,12 +10,14 @@ const ExamResults = ({ isTeacher, auth, exams }) => {
      const theme = useTheme();
      const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+     // تبدیل اعداد انگلیسی به فارسی
      const toPersianNumber = (num) => {
           if (num === null || num === undefined) return '-';
           const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
           return num.toString().replace(/\d/g, d => persianDigits[parseInt(d)]);
      };
 
+     // تبدیل تاریخ میلادی به شمسی
      const toPersianDateTime = (dateStr, timeStr) => {
           if (!dateStr) return '-';
           const parts = dateStr.split('-');
@@ -60,7 +62,7 @@ const ExamResults = ({ isTeacher, auth, exams }) => {
                <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, direction: 'rtl' }}>
                     <Grid container spacing={{ xs: 2, sm: 3 }}>
                          {exams.map((exam) => (
-                              <Grid item xs={12} sm={6} md={6} key={exam.id}> {/* تغییر اصلی */}
+                              <Grid item xs={12} sm={6} md={6} key={exam.id}>
                                    <Card>
                                         <CardContent>
                                              <Typography variant={isMobile ? 'subtitle1' : 'h6'} gutterBottom>

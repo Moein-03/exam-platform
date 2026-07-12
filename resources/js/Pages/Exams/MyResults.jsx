@@ -24,15 +24,13 @@ const MyResults = ({ isTeacher, auth, exams }) => {
      const toPersianDateTime = (dateStr, timeStr) => {
           if (!dateStr) return '-';
           
-          // ساخت تاریخ به‌صورت دستی
           const parts = dateStr.split('-');
           if (parts.length !== 3) return '-';
           
           const year = parseInt(parts[0]);
           const month = parseInt(parts[1]) - 1;
           const day = parseInt(parts[2]);
-          
-          // استخراج ساعت و دقیقه از timeStr
+
           let hours = 0, minutes = 0;
           if (timeStr) {
                const timeParts = timeStr.split(':');

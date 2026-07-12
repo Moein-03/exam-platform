@@ -58,6 +58,7 @@ const QuestionsIndex = ({ isTeacher, auth, questions: initialQuestions }) => {
         return types[type] || type;
     };
 
+    // تبدیل اعداد انگلیسی به فارسی
     const toPersianNumber = num => {
         if (num === null || num === undefined) return '-';
         const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];

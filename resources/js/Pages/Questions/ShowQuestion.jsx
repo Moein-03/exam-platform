@@ -13,7 +13,7 @@ const ShowQuestion = ({ isTeacher, auth, question }) => {
      const theme = useTheme();
      const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-     // تبدیل اعداد لاتین به فارسی
+     // تبدیل اعداد انگلیسی به فارسی
      const toPersianNumber = (num) => {
           if (num === null || num === undefined) return '-';
           const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];

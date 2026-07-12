@@ -9,7 +9,6 @@ const ReportsIndex = ({ exams, totalExams, totalStudents, avgScore, difficultQue
                          گزارش عملکرد و تحلیل آزمون‌ها
                     </Typography>
 
-                    {/* آمار کلی */}
                     <Grid container spacing={3} sx={{ mb: 6 }}>
                          <Grid item xs={12} md={3}>
                          <Card>

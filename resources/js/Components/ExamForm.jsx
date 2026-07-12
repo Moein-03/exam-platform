@@ -65,7 +65,7 @@ const ExamForm = ({ exam }) => {
                 let errorMessage = 'خطا در ذخیره آزمون';
                 
                 if (error.response) {
-                    // سرور پاسخ داده با خطا
+                    // سرور با خطا پاسخ داده 
                     if (error.response.status === 404) {
                         errorMessage = 'آزمون مورد نظر یافت نشد. ممکن است حذف شده باشد.';
                     } else if (error.response.status === 403) {
@@ -89,7 +89,7 @@ const ExamForm = ({ exam }) => {
         }
     });
 
-    // اگر ویرایش است و وضعیت پیش‌نویس نیست، هشدار بده
+    // اگر درحال ویرایش است و وضعیت پیش‌نویس نیست، هشدار بده
     if (isEditing && !isDraft) {
         return (
             <Paper sx={{ p: 3, direction: 'rtl' }}>

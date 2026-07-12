@@ -35,6 +35,7 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
         window.location.href = `/exams?page=${value}`;
     };
 
+    // تبدیل تاریخ میلادی به شمسی
     const toPersianDateTime = (dateStr, timeStr) => {
         if (!dateStr) return '-';
         const parts = dateStr.split('-');
@@ -61,6 +62,7 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
         });
     };
 
+    // تبدیل اعداد انگلیسی به فارسی
     const toPersianNumber = num => {
         if (num === null || num === undefined) return '-';
         const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
@@ -81,7 +83,7 @@ const ExamsIndex = ({ isTeacher, exams, auth }) => {
 
     return (
         <AuthenticatedLayout user={auth.user} header="مدیریت آزمون‌ها" isTeacher={isTeacher}>
-            {/* ✅ دکمه sticky برای موبایل */}
+            {/* دکمه sticky برای موبایل */}
             <Box
                 sx={{
                     position: 'sticky',

@@ -37,16 +37,4 @@ class QuestionFeedback extends Model
         // در غیر این صورت خود لینک را برگردان
         return $this->video_link;
     }
-
-    // برای ویدیو (مثل یوتیوب)
-    /* public function getEmbeddedVideoAttribute()
-    {
-        if (!$this->video_link) return null;
-        parse_str(parse_url($this->video_link, PHP_URL_QUERY), $params);
-        $videoId = $params['v'] ?? null;
-        if ($videoId) {
-            return "<iframe width='100%' height='200' src='https://www.youtube.com/embed/{$videoId}' frameborder='0' allowfullscreen></iframe>";
-        }
-        return $this->video_link;
-    } */
 }

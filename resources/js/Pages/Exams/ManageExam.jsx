@@ -20,14 +20,13 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
      const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
      const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
-     // توابع تبدیل
+     // // تبدیل اعداد انگلیسی به فارسی
      const toPersianNumber = (num) => {
           if (num === null || num === undefined) return '-';
           const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
           return num.toString().replace(/\d/g, d => persianDigits[parseInt(d)]);
      };
 
-     // جستجو
      const [searchStudent, setSearchStudent] = useState('');
      const [searchQuestion, setSearchQuestion] = useState('');
 
@@ -96,7 +95,6 @@ const ManageExam = ({ isTeacher, auth, exam, students, selectedStudents, allQues
           }
      };
 
-     // ذخیره تغییرات
      const handleSubmit = async () => {
           if (selectedStudentIds.length === 0) {
                toast.warning('حداقل یک دانشجو را انتخاب کنید');

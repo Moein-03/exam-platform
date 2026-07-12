@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState, useEffect } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -75,10 +75,10 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 const AuthenticatedLayout = ({ user, children, header, isTeacher }) => {
      const theme = useTheme();
      const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-     const [open, setOpen] = React.useState(!isMobile);
+     const [open, setOpen] = useState(!isMobile);
 
-     // وقتی سایز صفحه تغییر می‌کند، وضعیت دراور را به‌روز کن
-     React.useEffect(() => {
+     // وقتی سایز صفحه تغییر می‌کند، وضعیت دراور را تغییر بده
+     useEffect(() => {
           setOpen(!isMobile);
      }, [isMobile]);
 

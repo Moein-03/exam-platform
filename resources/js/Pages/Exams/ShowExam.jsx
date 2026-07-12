@@ -17,7 +17,7 @@ const ShowExam = ({ isTeacher, auth, exam }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-    // تبدیل تاریخ و زمان به شمسی با اعداد فارسی
+    // تبدیل تاریخ میلادی به شمسی
     const toPersianDateTime = (dateStr, timeStr) => {
         if (!dateStr) return '-';
         const parts = dateStr.split('-');
@@ -44,6 +44,7 @@ const ShowExam = ({ isTeacher, auth, exam }) => {
         });
     };
 
+    // تبدیل اعداد انگلیسی به فارسی
     const toPersianNumber = num => {
         if (num === null || num === undefined) return '-';
         const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
