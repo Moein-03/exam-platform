@@ -42,7 +42,7 @@
 
 | فناوری | توضیح |
 |--------|-------|
-| `Laravel 11` | فریمورک اصلی برای توسعه بک‌اند |
+| `Laravel 10` | فریمورک اصلی برای توسعه بک‌اند |
 | `PHP 8.2+` | زبان برنامه‌نویسی اصلی |
 | `MySQL 8.0` | پایگاه داده رابطه‌ای |
 | `Eloquent ORM` | لایه‌ی اتصال به دیتابیس با قابلیت مدل‌سازی پیشرفته |
@@ -512,7 +512,7 @@ The system supports two main roles: **Teacher** and **Student**, providing compl
 
 | Technology | Description |
 |------------|-------------|
-| **Laravel 11** | Main framework for backend development |
+| **Laravel 10** | Main framework for backend development |
 | **PHP 8.2+** | Primary programming language |
 | **MySQL 8.0** | Relational database |
 | **Eloquent ORM** | Database connection layer with advanced modeling |
